@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bangkok Transport Cost Comparison</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header class="header">
+    <div>
+      <h1>Bangkok Transport Cost Comparison</h1>
+      <div class="subtitle">Compare fares, distance & time across all transport modes</div>
+    </div>
+  </header>
+
+  <div class="main-container">
+    <div class="map-panel">
+      <div id="map"></div>
+      <div id="loading" class="loading-overlay">Loading transport data...</div>
+    </div>
+
+    <div class="sidebar">
+      <!-- Distance slider -->
+      <div class="distance-control">
+        <label>Select Distance</label>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <input type="range" id="distanceSlider" min="1" max="30" value="10" step="1" />
+          <span class="distance-value" id="distanceValue">10 km</span>
+        </div>
+        <div class="distance-display">
+          <span>1 km</span>
+          <span>30 km</span>
+        </div>
+      </div>
+
+      <!-- Tab navigation -->
+      <div class="tab-nav">
+        <button class="tab-btn active" data-tab="chart-tab">Charts</button>
+        <button class="tab-btn" data-tab="modes-tab">Modes</button>
+        <button class="tab-btn" data-tab="layers-tab">Map Layers</button>
+      </div>
+
+      <!-- Charts Tab -->
+      <div id="chart-tab" class="tab-content active">
+        <div class="chart-container">
+          <div class="chart-title">Fare vs Distance (THB)</div>
+          <canvas id="costChart"></canvas>
+        </div>
+        <div class="chart-container">
+          <div class="chart-title">Travel Time vs Distance (minutes)</div>
+          <canvas id="timeChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Modes Tab -->
+      <div id="modes-tab" class="tab-content">
+        <div class="type-filters">
+          <button class="type-filter active" data-type="all">All</button>
+          <button class="type-filter" data-type="rail">Rail</button>
+          <button class="type-filter" data-type="bus">Bus</button>
+          <button class="type-filter" data-type="boat">Boat</button>
+          <button class="type-filter" data-type="road">Road</button>
+        </div>
+        <div id="modeCards" class="mode-cards"></div>
+      </div>
+
+      <!-- Layers Tab -->
+      <div id="layers-tab" class="tab-content">
+        <div class="sidebar-section">
+          <h2>Train Lines</h2>
+          <div id="trainLayerToggles" class="layer-toggles"></div>
+        </div>
+        <div class="sidebar-section">
+          <h2>Other Layers</h2>
+          <div id="otherLayerToggles" class="layer-toggles"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,262 @@
+{
+  "modes": [
+    {
+      "id": "bts",
+      "name": "BTS Skytrain",
+      "nameTh": "รถไฟฟ้าบีทีเอส",
+      "type": "rail",
+      "color": "#8BC34A",
+      "baseFare": 17,
+      "fareFormula": "distance-based",
+      "fareTable": [
+        { "maxKm": 2, "fare": 17 },
+        { "maxKm": 4, "fare": 20 },
+        { "maxKm": 6, "fare": 24 },
+        { "maxKm": 8, "fare": 28 },
+        { "maxKm": 10, "fare": 32 },
+        { "maxKm": 14, "fare": 37 },
+        { "maxKm": 18, "fare": 42 },
+        { "maxKm": 22, "fare": 48 },
+        { "maxKm": 26, "fare": 55 },
+        { "maxKm": 30, "fare": 62 },
+        { "maxKm": 99, "fare": 65 }
+      ],
+      "avgSpeedKmh": 35,
+      "operatingHours": "06:00-00:00",
+      "description": "Elevated rapid transit system covering Sukhumvit and Silom lines"
+    },
+    {
+      "id": "mrt_blue",
+      "name": "MRT Blue Line",
+      "nameTh": "รถไฟฟ้าMRT สายสีน้ำเงิน",
+      "type": "rail",
+      "color": "#1565C0",
+      "baseFare": 17,
+      "fareFormula": "distance-based",
+      "fareTable": [
+        { "maxKm": 2, "fare": 17 },
+        { "maxKm": 4, "fare": 19 },
+        { "maxKm": 6, "fare": 22 },
+        { "maxKm": 8, "fare": 25 },
+        { "maxKm": 10, "fare": 28 },
+        { "maxKm": 14, "fare": 31 },
+        { "maxKm": 18, "fare": 35 },
+        { "maxKm": 22, "fare": 38 },
+        { "maxKm": 26, "fare": 42 },
+        { "maxKm": 30, "fare": 45 },
+        { "maxKm": 99, "fare": 45 }
+      ],
+      "avgSpeedKmh": 35,
+      "operatingHours": "06:00-00:00",
+      "description": "Underground/elevated metro forming a loop through central Bangkok"
+    },
+    {
+      "id": "mrt_purple",
+      "name": "MRT Purple Line",
+      "nameTh": "รถไฟฟ้าMRT สายสีม่วง",
+      "type": "rail",
+      "color": "#7B1FA2",
+      "baseFare": 14,
+      "fareFormula": "distance-based",
+      "fareTable": [
+        { "maxKm": 2, "fare": 14 },
+        { "maxKm": 4, "fare": 17 },
+        { "maxKm": 6, "fare": 20 },
+        { "maxKm": 8, "fare": 23 },
+        { "maxKm": 10, "fare": 26 },
+        { "maxKm": 14, "fare": 30 },
+        { "maxKm": 18, "fare": 34 },
+        { "maxKm": 22, "fare": 38 },
+        { "maxKm": 26, "fare": 42 },
+        { "maxKm": 30, "fare": 42 },
+        { "maxKm": 99, "fare": 42 }
+      ],
+      "avgSpeedKmh": 35,
+      "operatingHours": "06:00-00:00",
+      "description": "Connects Nonthaburi to central Bangkok via Tao Poon"
+    },
+    {
+      "id": "arl",
+      "name": "Airport Rail Link",
+      "nameTh": "แอร์พอร์ตเรลลิงก์",
+      "type": "rail",
+      "color": "#D32F2F",
+      "baseFare": 15,
+      "fareFormula": "distance-based",
+      "fareTable": [
+        { "maxKm": 4, "fare": 15 },
+        { "maxKm": 8, "fare": 20 },
+        { "maxKm": 12, "fare": 25 },
+        { "maxKm": 16, "fare": 30 },
+        { "maxKm": 20, "fare": 35 },
+        { "maxKm": 24, "fare": 40 },
+        { "maxKm": 30, "fare": 45 },
+        { "maxKm": 99, "fare": 45 }
+      ],
+      "avgSpeedKmh": 40,
+      "operatingHours": "05:30-00:00",
+      "description": "Connects Suvarnabhumi Airport to Phaya Thai via 8 stations"
+    },
+    {
+      "id": "bus_nonac",
+      "name": "Bus (Non-AC)",
+      "nameTh": "รถเมล์ธรรมดา",
+      "type": "bus",
+      "color": "#FF9800",
+      "baseFare": 8,
+      "fareFormula": "flat",
+      "fareTable": [
+        { "maxKm": 99, "fare": 8 }
+      ],
+      "avgSpeedKmh": 12,
+      "operatingHours": "05:00-23:00",
+      "description": "BMTA non-air-conditioned buses, flat fare regardless of distance"
+    },
+    {
+      "id": "bus_ac",
+      "name": "Bus (AC)",
+      "nameTh": "รถเมล์ปรับอากาศ",
+      "type": "bus",
+      "color": "#FF5722",
+      "baseFare": 13,
+      "fareFormula": "distance-based",
+      "fareTable": [
+        { "maxKm": 4, "fare": 13 },
+        { "maxKm": 8, "fare": 15 },
+        { "maxKm": 12, "fare": 17 },
+        { "maxKm": 16, "fare": 19 },
+        { "maxKm": 20, "fare": 21 },
+        { "maxKm": 24, "fare": 23 },
+        { "maxKm": 30, "fare": 26 },
+        { "maxKm": 99, "fare": 26 }
+      ],
+      "avgSpeedKmh": 12,
+      "operatingHours": "05:00-23:00",
+      "description": "BMTA air-conditioned buses, distance-based fare"
+    },
+    {
+      "id": "chao_phraya",
+      "name": "Chao Phraya Express Boat",
+      "nameTh": "เรือด่วนเจ้าพระยา",
+      "type": "boat",
+      "color": "#00BCD4",
+      "baseFare": 15,
+      "fareFormula": "distance-based",
+      "fareTable": [
+        { "maxKm": 4, "fare": 15 },
+        { "maxKm": 8, "fare": 18 },
+        { "maxKm": 12, "fare": 21 },
+        { "maxKm": 16, "fare": 24 },
+        { "maxKm": 20, "fare": 27 },
+        { "maxKm": 30, "fare": 30 },
+        { "maxKm": 99, "fare": 30 }
+      ],
+      "avgSpeedKmh": 15,
+      "operatingHours": "06:00-19:30",
+      "description": "Express boat service along the Chao Phraya River"
+    },
+    {
+      "id": "khlong",
+      "name": "Khlong Saen Saep Boat",
+      "nameTh": "เรือคลองแสนแสบ",
+      "type": "boat",
+      "color": "#009688",
+      "baseFare": 8,
+      "fareFormula": "distance-based",
+      "fareTable": [
+        { "maxKm": 4, "fare": 8 },
+        { "maxKm": 8, "fare": 11 },
+        { "maxKm": 12, "fare": 14 },
+        { "maxKm": 16, "fare": 18 },
+        { "maxKm": 20, "fare": 22 },
+        { "maxKm": 30, "fare": 22 },
+        { "maxKm": 99, "fare": 22 }
+      ],
+      "avgSpeedKmh": 15,
+      "operatingHours": "05:30-20:30",
+      "description": "Canal boat service connecting east and west Bangkok"
+    },
+    {
+      "id": "taxi",
+      "name": "Taxi (Metered)",
+      "nameTh": "แท็กซี่",
+      "type": "road",
+      "color": "#E91E63",
+      "baseFare": 35,
+      "fareFormula": "metered",
+      "perKmRate": [
+        { "maxKm": 2, "rate": 0 },
+        { "maxKm": 10, "rate": 6.5 },
+        { "maxKm": 20, "rate": 5.5 },
+        { "maxKm": 99, "rate": 5.5 }
+      ],
+      "avgSpeedKmh": 11,
+      "operatingHours": "24 hours",
+      "description": "Metered taxis, flag fall 35 THB for first 2 km"
+    },
+    {
+      "id": "motorcycle",
+      "name": "Motorcycle Taxi",
+      "nameTh": "มอเตอร์ไซค์รับจ้าง",
+      "type": "road",
+      "color": "#795548",
+      "baseFare": 25,
+      "fareFormula": "per-km",
+      "perKmRate": [
+        { "maxKm": 2, "rate": 0 },
+        { "maxKm": 99, "rate": 7 }
+      ],
+      "avgSpeedKmh": 20,
+      "operatingHours": "06:00-22:00",
+      "description": "Motorbike taxis identified by orange vests, fastest in traffic"
+    },
+    {
+      "id": "tuktuk",
+      "name": "Tuk-Tuk",
+      "nameTh": "ตุ๊กตุ๊ก",
+      "type": "road",
+      "color": "#FFC107",
+      "baseFare": 60,
+      "fareFormula": "per-km",
+      "perKmRate": [
+        { "maxKm": 2, "rate": 0 },
+        { "maxKm": 99, "rate": 18 }
+      ],
+      "avgSpeedKmh": 15,
+      "operatingHours": "06:00-00:00",
+      "description": "Iconic three-wheeled vehicle, negotiated fares"
+    },
+    {
+      "id": "grab_car",
+      "name": "Grab Car",
+      "nameTh": "แกร็บคาร์",
+      "type": "road",
+      "color": "#4CAF50",
+      "baseFare": 45,
+      "fareFormula": "per-km",
+      "perKmRate": [
+        { "maxKm": 2, "rate": 0 },
+        { "maxKm": 99, "rate": 9 }
+      ],
+      "avgSpeedKmh": 11,
+      "operatingHours": "24 hours",
+      "description": "Ride-hailing app, transparent pricing before booking"
+    },
+    {
+      "id": "grab_bike",
+      "name": "Grab Bike",
+      "nameTh": "แกร็บไบค์",
+      "type": "road",
+      "color": "#00C853",
+      "baseFare": 25,
+      "fareFormula": "per-km",
+      "perKmRate": [
+        { "maxKm": 2, "rate": 0 },
+        { "maxKm": 99, "rate": 7 }
+      ],
+      "avgSpeedKmh": 20,
+      "operatingHours": "24 hours",
+      "description": "Grab motorcycle ride-hailing service"
+    }
+  ]
+}
