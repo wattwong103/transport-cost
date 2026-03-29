@@ -32,6 +32,10 @@
       "name": "Red Line (Rangsit)",
       "color": "#C62828"
     },
+    "red_west": {
+      "name": "Red Line (Taling Chan)",
+      "color": "#C62828"
+    },
     "gold": {
       "name": "Gold Line",
       "color": "#F9A825"
@@ -126,6 +130,11 @@
     "rdn3": { "name": "Bang Khen", "nameTh": "บางเขน", "lat": 13.8541, "lng": 100.5858, "line": "red_north" },
     "rdn6": { "name": "Don Mueang", "nameTh": "ดอนเมือง", "lat": 13.9133, "lng": 100.5957, "line": "red_north" },
     "rdn10": { "name": "Rangsit", "nameTh": "รังสิต", "lat": 13.9635, "lng": 100.6046, "line": "red_north" },
+
+    "rdw1": { "name": "Krung Thep Aphiwat", "nameTh": "กรุงเทพอภิวัฒน์", "lat": 13.8123, "lng": 100.5270, "line": "red_west" },
+    "rdw2": { "name": "Bang Son", "nameTh": "บางซ่อน", "lat": 13.8046, "lng": 100.5132, "line": "red_west" },
+    "rdw3": { "name": "Bang Bamru", "nameTh": "บางบำหรุ", "lat": 13.7965, "lng": 100.4862, "line": "red_west" },
+    "rdw4": { "name": "Taling Chan", "nameTh": "ตลิ่งชัน", "lat": 13.7834, "lng": 100.4554, "line": "red_west" },
 
     "gw1": { "name": "Khlong San", "nameTh": "คลองสาน", "lat": 13.7224, "lng": 100.5079, "line": "gold" },
     "gd2": { "name": "Charoen Nakhon", "nameTh": "เจริญนคร", "lat": 13.7244, "lng": 100.5010, "line": "gold" },

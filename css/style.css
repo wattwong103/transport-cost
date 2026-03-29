@@ -33,6 +33,32 @@ body {
   opacity: 0.8;
 }
 
+/* Header Navigation */
+.header-nav {
+  display: flex;
+  gap: 8px;
+}
+
+.nav-link {
+  color: rgba(255,255,255,0.7);
+  text-decoration: none;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.nav-link:hover {
+  color: white;
+  background: rgba(255,255,255,0.15);
+}
+
+.nav-link.active {
+  color: white;
+  background: rgba(255,255,255,0.2);
+}
+
 /* Main Layout */
 .main-container {
   display: flex;
