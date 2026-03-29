@@ -353,30 +353,7 @@
   }
 
   function updateModeCardFares() {
-    const cards = document.querySelectorAll('.mode-card');
-    cards.forEach(card => {
-      const modeId = card.dataset.modeId;
-      const mode = transportModes.find(m => m.id === modeId);
-      if (!mode) return;
-
-      const fare = calculateFare(mode, selectedDistance);
-      const time = Math.round(calculateTime(mode, selectedDistance));
-
-      card.querySelector('.fare-value').textContent = `${fare} THB`;
-      card.querySelector('.fare-label').textContent = `for ${selectedDistance} km`;
-      card.querySelector('.mode-card-detail:last-child').textContent =
-        `${mode.avgSpeedKmh} km/h avg | ~${time} min for ${selectedDistance} km`;
-    });
-
-    // Re-sort cards
-    const container = document.getElementById('modeCards');
-    const cardsArray = Array.from(container.children);
-    cardsArray.sort((a, b) => {
-      const modeA = transportModes.find(m => m.id === a.dataset.modeId);
-      const modeB = transportModes.find(m => m.id === b.dataset.modeId);
-      return calculateFare(modeA, selectedDistance) - calculateFare(modeB, selectedDistance);
-    });
-    cardsArray.forEach(card => container.appendChild(card));
+    renderModeCards();
   }
 
   function toggleModeHighlight(modeId) {
