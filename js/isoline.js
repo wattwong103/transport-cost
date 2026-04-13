@@ -1,11 +1,12 @@
 // ============================================================
-// DMK Airport Isoline Map
+// DMK Airport Isoline Map - Realistic Network-Based
 // ============================================================
 
 (function () {
   'use strict';
 
   var DMK = [13.9133, 100.5957];
+  var DMK_STATION = 'rdn6'; // Don Mueang station on Red Line
 
   var COST_BANDS = [15, 25, 35, 50, 75, 100, 150, 200, 300];
   var TIME_BANDS = [5, 10, 15, 20, 30, 45, 60, 90, 120];
@@ -15,14 +16,84 @@
     '#fee08b', '#fdae61', '#f46d43', '#d73027', '#a50026'
   ];
 
+  // Grid parameters
+  var GRID_SIZE = 60;
+  var GRID_BOUNDS = {
+    minLat: 13.45, maxLat: 14.10,
+    minLng: 100.30, maxLng: 100.90
+  };
+
+  // Walking speed for last-mile
+  var WALK_SPEED_KMH = 5;
+  // Max walking distance to consider a station reachable (km)
+  var MAX_WALK_KM = 2;
+
+  // Road circuity factors by direction from DMK (degrees)
+  // Models Bangkok's road network: good highways south (Vibhavadi),
+  // east (motorway), poorer west (cross-river)
+  var ROAD_CIRCUITY = [
+    { angle: 0,   factor: 1.25 },  // North - toward Rangsit
+    { angle: 45,  factor: 1.35 },  // NE
+    { angle: 90,  factor: 1.15 },  // East - motorway
+    { angle: 135, factor: 1.30 },  // SE
+    { angle: 180, factor: 1.10 },  // South - Vibhavadi highway
+    { angle: 225, factor: 1.50 },  // SW - cross river
+    { angle: 270, factor: 1.50 },  // West - cross river
+    { angle: 315, factor: 1.35 },  // NW
+  ];
+
   var transportModes = [];
+  var trainStations = {};
+  var trainEdges = [];
+  var stationDistances = {}; // Dijkstra results: stationId -> {km, time_min}
   var map = null;
-  var ringLayer = null;
+  var isolineLayer = null;
+  var stationLayer = null;
   var selectedMode = null;
-  var viewType = 'cost'; // 'cost' or 'time'
+  var viewType = 'cost';
 
   // ============================================================
-  // Fare Calculation (duplicated from app.js for standalone use)
+  // Geo utilities
+  // ============================================================
+
+  function haversineKm(lat1, lng1, lat2, lng2) {
+    var R = 6371;
+    var dLat = (lat2 - lat1) * Math.PI / 180;
+    var dLng = (lng2 - lng1) * Math.PI / 180;
+    var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+            Math.sin(dLng / 2) * Math.sin(dLng / 2);
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  }
+
+  function getCircuityFactor(fromLat, fromLng, toLat, toLng) {
+    var dy = toLat - fromLat;
+    var dx = toLng - fromLng;
+    var angle = Math.atan2(dy, dx) * 180 / Math.PI; // -180 to 180
+    angle = ((angle % 360) + 360) % 360; // normalize to 0-360
+    // Convert from math angle to compass bearing
+    angle = (90 - angle + 360) % 360;
+
+    // Interpolate between defined factors
+    var n = ROAD_CIRCUITY.length;
+    for (var i = 0; i < n; i++) {
+      var a1 = ROAD_CIRCUITY[i].angle;
+      var a2 = ROAD_CIRCUITY[(i + 1) % n].angle;
+      var f1 = ROAD_CIRCUITY[i].factor;
+      var f2 = ROAD_CIRCUITY[(i + 1) % n].factor;
+      if (a2 <= a1) a2 += 360;
+      var checkAngle = angle;
+      if (checkAngle < a1) checkAngle += 360;
+      if (checkAngle >= a1 && checkAngle < a2) {
+        var t = (checkAngle - a1) / (a2 - a1);
+        return f1 + t * (f2 - f1);
+      }
+    }
+    return 1.3; // default
+  }
+
+  // ============================================================
+  // Fare Calculation
   // ============================================================
 
   function calculateFare(mode, distanceKm) {
@@ -31,9 +102,7 @@
     }
     if (mode.fareFormula === 'distance-based') {
       for (var i = 0; i < mode.fareTable.length; i++) {
-        if (distanceKm <= mode.fareTable[i].maxKm) {
-          return mode.fareTable[i].fare;
-        }
+        if (distanceKm <= mode.fareTable[i].maxKm) return mode.fareTable[i].fare;
       }
       return mode.fareTable[mode.fareTable.length - 1].fare;
     }
@@ -56,22 +125,324 @@
     return mode.baseFare;
   }
 
-  function getDistanceForFare(mode, targetFare) {
-    // Binary search for the distance that gives this fare
-    var lo = 0, hi = 60;
-    for (var i = 0; i < 30; i++) {
-      var mid = (lo + hi) / 2;
-      if (calculateFare(mode, mid) <= targetFare) {
-        lo = mid;
-      } else {
-        hi = mid;
-      }
-    }
-    return lo;
+  function calculateTime(mode, distanceKm) {
+    return (distanceKm / mode.avgSpeedKmh) * 60;
   }
 
-  function getDistanceForTime(mode, targetMinutes) {
-    return targetMinutes * mode.avgSpeedKmh / 60;
+  // ============================================================
+  // Rail Network Dijkstra
+  // ============================================================
+
+  function buildRailGraph() {
+    var graph = {}; // adjacency list: stationId -> [{to, km}]
+
+    for (var i = 0; i < trainEdges.length; i++) {
+      var e = trainEdges[i];
+      var from = e.from;
+      var to = e.to;
+
+      if (!trainStations[from] || !trainStations[to]) continue;
+
+      var km = haversineKm(
+        trainStations[from].lat, trainStations[from].lng,
+        trainStations[to].lat, trainStations[to].lng
+      );
+
+      // Connection (interchange) adds walking penalty
+      var penalty = e.type === 'connection' ? 0.3 : 0;
+
+      if (!graph[from]) graph[from] = [];
+      if (!graph[to]) graph[to] = [];
+      graph[from].push({ to: to, km: km + penalty });
+      graph[to].push({ to: from, km: km + penalty }); // bidirectional
+    }
+
+    return graph;
+  }
+
+  function dijkstra(graph, startNode) {
+    var dist = {};
+    var visited = {};
+
+    // Also add DMK airport itself as a start (walk from DMK to rdn6)
+    var dmkToStation = 0;
+    if (startNode === 'rdn6' && trainStations['rdn6']) {
+      dmkToStation = haversineKm(DMK[0], DMK[1], trainStations['rdn6'].lat, trainStations['rdn6'].lng);
+    }
+
+    // Initialize
+    for (var node in graph) {
+      dist[node] = Infinity;
+    }
+    // Also consider dmk node
+    if (trainStations['dmk'] && graph['dmk']) {
+      dist['dmk'] = haversineKm(DMK[0], DMK[1], trainStations['dmk'].lat, trainStations['dmk'].lng);
+    }
+    dist[startNode] = dmkToStation;
+
+    // Simple Dijkstra (fine for ~200 nodes)
+    while (true) {
+      var u = null;
+      var minDist = Infinity;
+      for (var n in dist) {
+        if (!visited[n] && dist[n] < minDist) {
+          minDist = dist[n];
+          u = n;
+        }
+      }
+      if (u === null || minDist === Infinity) break;
+
+      visited[u] = true;
+      var neighbors = graph[u] || [];
+      for (var j = 0; j < neighbors.length; j++) {
+        var neighbor = neighbors[j];
+        var newDist = dist[u] + neighbor.km;
+        if (newDist < (dist[neighbor.to] || Infinity)) {
+          dist[neighbor.to] = newDist;
+        }
+      }
+    }
+
+    return dist;
+  }
+
+  function computeStationDistances() {
+    var graph = buildRailGraph();
+    stationDistances = dijkstra(graph, DMK_STATION);
+  }
+
+  // ============================================================
+  // Grid Cost Computation
+  // ============================================================
+
+  function computeGridCost(mode) {
+    var grid = [];
+    var latStep = (GRID_BOUNDS.maxLat - GRID_BOUNDS.minLat) / GRID_SIZE;
+    var lngStep = (GRID_BOUNDS.maxLng - GRID_BOUNDS.minLng) / GRID_SIZE;
+    var isRail = mode.type === 'rail';
+
+    for (var r = 0; r < GRID_SIZE; r++) {
+      grid[r] = [];
+      var lat = GRID_BOUNDS.minLat + (r + 0.5) * latStep;
+      for (var c = 0; c < GRID_SIZE; c++) {
+        var lng = GRID_BOUNDS.minLng + (c + 0.5) * lngStep;
+
+        var straightKm = haversineKm(DMK[0], DMK[1], lat, lng);
+
+        if (isRail) {
+          // For rail: find best station near this point, compute
+          // rail_distance_from_DMK + walking distance to/from station
+          var bestCost = Infinity;
+          var bestTime = Infinity;
+
+          for (var sid in stationDistances) {
+            var s = trainStations[sid];
+            if (!s) continue;
+            var walkKm = haversineKm(lat, lng, s.lat, s.lng);
+            if (walkKm > MAX_WALK_KM) continue;
+
+            var railKm = stationDistances[sid];
+            if (railKm === Infinity) continue;
+
+            // Walking to DMK station + rail + walking from destination station
+            var totalKm = railKm;
+            var fare = calculateFare(mode, totalKm);
+            var walkTimeMins = (walkKm / WALK_SPEED_KMH) * 60;
+            var railTimeMins = calculateTime(mode, totalKm);
+            var totalTime = walkTimeMins + railTimeMins;
+
+            if (viewType === 'cost') {
+              if (fare < bestCost) bestCost = fare;
+            } else {
+              if (totalTime < bestTime) bestTime = totalTime;
+            }
+          }
+
+          grid[r][c] = viewType === 'cost' ? bestCost : bestTime;
+        } else {
+          // For road modes: apply directional circuity
+          var circuity = getCircuityFactor(DMK[0], DMK[1], lat, lng);
+          var roadKm = straightKm * circuity;
+
+          if (viewType === 'cost') {
+            grid[r][c] = calculateFare(mode, roadKm);
+          } else {
+            grid[r][c] = calculateTime(mode, roadKm);
+          }
+        }
+      }
+    }
+    return grid;
+  }
+
+  // ============================================================
+  // Contour polygon extraction (Marching Squares)
+  // ============================================================
+
+  function extractContourPolygons(grid, threshold) {
+    // Find all cells below threshold, build a filled polygon
+    var latStep = (GRID_BOUNDS.maxLat - GRID_BOUNDS.minLat) / GRID_SIZE;
+    var lngStep = (GRID_BOUNDS.maxLng - GRID_BOUNDS.minLng) / GRID_SIZE;
+
+    // Collect all cells within threshold
+    var cells = [];
+    for (var r = 0; r < GRID_SIZE; r++) {
+      for (var c = 0; c < GRID_SIZE; c++) {
+        if (grid[r][c] <= threshold) {
+          cells.push([r, c]);
+        }
+      }
+    }
+
+    if (cells.length === 0) return null;
+
+    // Build boundary edges using a grid-boundary approach
+    var cellSet = {};
+    for (var i = 0; i < cells.length; i++) {
+      cellSet[cells[i][0] + ',' + cells[i][1]] = true;
+    }
+
+    // Collect boundary segments
+    var edges = [];
+    for (var j = 0; j < cells.length; j++) {
+      var cr = cells[j][0];
+      var cc = cells[j][1];
+      var lat0 = GRID_BOUNDS.minLat + cr * latStep;
+      var lat1 = lat0 + latStep;
+      var lng0 = GRID_BOUNDS.minLng + cc * lngStep;
+      var lng1 = lng0 + lngStep;
+
+      // Check each of 4 directions
+      if (!cellSet[(cr - 1) + ',' + cc]) edges.push([[lat0, lng0], [lat0, lng1]]); // top
+      if (!cellSet[(cr + 1) + ',' + cc]) edges.push([[lat1, lng0], [lat1, lng1]]); // bottom
+      if (!cellSet[cr + ',' + (cc - 1)]) edges.push([[lat0, lng0], [lat1, lng0]]); // left
+      if (!cellSet[cr + ',' + (cc + 1)]) edges.push([[lat0, lng1], [lat1, lng1]]); // right
+    }
+
+    if (edges.length === 0) return null;
+
+    // Chain boundary edges into a polygon
+    var polygon = chainEdges(edges);
+    return polygon;
+  }
+
+  function chainEdges(edges) {
+    if (edges.length === 0) return [];
+
+    // Build adjacency: point -> [connected points]
+    var adj = {};
+    var ptKey = function(p) { return p[0].toFixed(5) + ',' + p[1].toFixed(5); };
+
+    for (var i = 0; i < edges.length; i++) {
+      var k1 = ptKey(edges[i][0]);
+      var k2 = ptKey(edges[i][1]);
+      if (!adj[k1]) adj[k1] = [];
+      if (!adj[k2]) adj[k2] = [];
+      adj[k1].push({ pt: edges[i][1], key: k2 });
+      adj[k2].push({ pt: edges[i][0], key: k1 });
+    }
+
+    // Walk the chain to form polygon
+    var visited = {};
+    var start = ptKey(edges[0][0]);
+    var current = start;
+    var polygon = [edges[0][0]];
+    visited[start] = true;
+
+    for (var step = 0; step < edges.length * 2; step++) {
+      var neighbors = adj[current];
+      if (!neighbors) break;
+      var found = false;
+      for (var n = 0; n < neighbors.length; n++) {
+        if (!visited[neighbors[n].key]) {
+          visited[neighbors[n].key] = true;
+          polygon.push(neighbors[n].pt);
+          current = neighbors[n].key;
+          found = true;
+          break;
+        }
+      }
+      if (!found) break;
+    }
+
+    return polygon;
+  }
+
+  // ============================================================
+  // Visualization
+  // ============================================================
+
+  function drawIsolines() {
+    if (!isolineLayer || !selectedMode) return;
+    isolineLayer.clearLayers();
+    if (stationLayer) stationLayer.clearLayers();
+
+    var grid = computeGridCost(selectedMode);
+    var bands = viewType === 'cost' ? COST_BANDS : TIME_BANDS;
+
+    // Draw from outermost to innermost
+    for (var i = bands.length - 1; i >= 0; i--) {
+      var polygon = extractContourPolygons(grid, bands[i]);
+      if (polygon && polygon.length > 2) {
+        var poly = L.polygon(polygon, {
+          color: COLORS[i],
+          fillColor: COLORS[i],
+          fillOpacity: 0.25,
+          weight: 1.5,
+          opacity: 0.7
+        });
+        var label = viewType === 'cost' ? bands[i] + ' THB' : bands[i] + ' min';
+        poly.bindTooltip(label, { sticky: true });
+        poly.addTo(isolineLayer);
+      }
+    }
+
+    // For rail modes, also show reachable stations
+    if (selectedMode.type === 'rail') {
+      drawReachableStations(bands);
+    }
+  }
+
+  function drawReachableStations(bands) {
+    if (!stationLayer) return;
+    var maxBand = bands[bands.length - 1];
+
+    for (var sid in stationDistances) {
+      var s = trainStations[sid];
+      if (!s || stationDistances[sid] === Infinity) continue;
+
+      var railKm = stationDistances[sid];
+      var value;
+      if (viewType === 'cost') {
+        value = calculateFare(selectedMode, railKm);
+      } else {
+        value = calculateTime(selectedMode, railKm);
+      }
+
+      if (value > maxBand) continue;
+
+      // Find color band
+      var colorIdx = 0;
+      for (var b = 0; b < bands.length; b++) {
+        if (value <= bands[b]) { colorIdx = b; break; }
+      }
+
+      var marker = L.circleMarker([s.lat, s.lng], {
+        radius: 4,
+        fillColor: COLORS[colorIdx],
+        color: '#333',
+        weight: 1,
+        fillOpacity: 0.9
+      });
+
+      var lbl = viewType === 'cost'
+        ? Math.round(value) + ' THB'
+        : Math.round(value) + ' min';
+      marker.bindPopup('<b>' + (s.name || sid) + '</b><br>' +
+        (s.nameTh || '') + '<br>' +
+        'From DMK: ' + railKm.toFixed(1) + ' km rail | ' + lbl);
+      marker.addTo(stationLayer);
+    }
   }
 
   // ============================================================
@@ -80,20 +451,28 @@
 
   async function loadData() {
     try {
-      var res = await fetch('data/transport-modes.json');
-      var data = await res.json();
-      transportModes = data.modes;
+      var results = await Promise.all([
+        fetch('data/transport-modes.json').then(function(r) { return r.json(); }),
+        fetch('data/train-stations.json').then(function(r) { return r.json(); }),
+        fetch('data/train-edges.json').then(function(r) { return r.json(); })
+      ]);
+
+      transportModes = results[0].modes;
+      trainStations = results[1].stations;
+      trainEdges = results[2];
+
+      computeStationDistances();
 
       document.getElementById('isoline-loading').classList.add('hidden');
       initMap();
       renderModeButtons();
       selectedMode = transportModes[0];
       setActiveMode(selectedMode.id);
-      drawRings();
+      drawIsolines();
       updateLegend();
     } catch (err) {
       console.error('Failed to load data:', err);
-      document.getElementById('isoline-loading').textContent = 'Failed to load data.';
+      document.getElementById('isoline-loading').textContent = 'Failed to load data. ' + err.message;
     }
   }
 
@@ -113,46 +492,12 @@
       maxZoom: 18
     }).addTo(map);
 
-    // DMK marker
     L.marker(DMK).addTo(map).bindPopup(
       '<b>Don Mueang Airport (DMK)</b><br>ท่าอากาศยานดอนเมือง'
     ).openPopup();
 
-    ringLayer = L.layerGroup().addTo(map);
-  }
-
-  function drawRings() {
-    if (!ringLayer || !selectedMode) return;
-    ringLayer.clearLayers();
-
-    var bands = viewType === 'cost' ? COST_BANDS : TIME_BANDS;
-
-    // Draw from outermost to innermost so inner rings paint over outer
-    for (var i = bands.length - 1; i >= 0; i--) {
-      var distKm;
-      if (viewType === 'cost') {
-        distKm = getDistanceForFare(selectedMode, bands[i]);
-      } else {
-        distKm = getDistanceForTime(selectedMode, bands[i]);
-      }
-
-      if (distKm < 0.1) continue;
-
-      var circle = L.circle(DMK, {
-        radius: distKm * 1000,
-        color: COLORS[i],
-        fillColor: COLORS[i],
-        fillOpacity: 0.2,
-        weight: 2,
-        opacity: 0.6
-      });
-
-      var label = viewType === 'cost'
-        ? bands[i] + ' THB'
-        : bands[i] + ' min';
-      circle.bindTooltip(label, { sticky: true });
-      circle.addTo(ringLayer);
-    }
+    isolineLayer = L.layerGroup().addTo(map);
+    stationLayer = L.layerGroup().addTo(map);
   }
 
   // ============================================================
@@ -176,7 +521,7 @@
         if (m) {
           selectedMode = m;
           setActiveMode(modeId);
-          drawRings();
+          drawIsolines();
           updateLegend();
         }
       });
@@ -214,7 +559,6 @@
   }
 
   function setupControls() {
-    // View toggle
     document.querySelectorAll('.view-toggle button').forEach(function(btn) {
       btn.addEventListener('click', function() {
         document.querySelectorAll('.view-toggle button').forEach(function(b) {
@@ -222,7 +566,7 @@
         });
         btn.classList.add('active');
         viewType = btn.dataset.view;
-        drawRings();
+        drawIsolines();
         updateLegend();
       });
     });
