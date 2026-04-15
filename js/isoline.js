@@ -49,8 +49,16 @@
   var map = null;
   var isolineLayer = null;
   var stationLayer = null;
+  var transitLayer = null;
   var selectedMode = null;
   var viewType = 'cost';
+  var showTransitStops = false;
+
+  // Pre-computed transit reachability data
+  var transitData = null;  // raw JSON from dmk-transit-reach.json
+  var busGrid = null;      // spatial index of bus stops
+  var boatGrid = null;     // spatial index of boat piers
+  var motoDensity = null;  // 60x60 grid of motorcycle taxi density (0-1)
 
   // ============================================================
   // Geo utilities
@@ -90,6 +98,65 @@
       }
     }
     return 1.3; // default
+  }
+
+  // ============================================================
+  // Transit spatial index (for bus/boat stop lookup)
+  // ============================================================
+
+  function buildTransitGrid(stops, cellDeg) {
+    // stops: array of [lat, lng, km, time_min]
+    // Returns grid: { "r,c" -> [indices into stops] }
+    cellDeg = cellDeg || 0.005;
+    var grid = {};
+    for (var i = 0; i < stops.length; i++) {
+      var r = Math.floor(stops[i][0] / cellDeg);
+      var c = Math.floor(stops[i][1] / cellDeg);
+      var key = r + ',' + c;
+      if (!grid[key]) grid[key] = [];
+      grid[key].push(i);
+    }
+    return grid;
+  }
+
+  function findNearestStop(spatialGrid, stops, lat, lng, maxKm) {
+    // Returns { km, time } of nearest reachable stop, or null
+    var cellDeg = 0.005;
+    var r = Math.floor(lat / cellDeg);
+    var c = Math.floor(lng / cellDeg);
+    var bestDist = Infinity;
+    var bestKm = 0;
+    var bestTime = 0;
+
+    for (var dr = -1; dr <= 1; dr++) {
+      for (var dc = -1; dc <= 1; dc++) {
+        var key = (r + dr) + ',' + (c + dc);
+        var bucket = spatialGrid[key];
+        if (!bucket) continue;
+        for (var i = 0; i < bucket.length; i++) {
+          var s = stops[bucket[i]];
+          var walkKm = haversineKm(lat, lng, s[0], s[1]);
+          if (walkKm > maxKm) continue;
+          // Total distance = transit distance from DMK + walking
+          var totalKm = s[2] + walkKm;
+          if (totalKm < bestDist) {
+            bestDist = totalKm;
+            bestKm = s[2];
+            bestTime = s[3];
+          }
+        }
+      }
+    }
+
+    if (bestDist === Infinity) return null;
+    var walkKmFinal = bestDist - bestKm;
+    return {
+      transitKm: bestKm,
+      walkKm: walkKmFinal,
+      totalKm: bestDist,
+      transitTime: bestTime,
+      walkTime: (walkKmFinal / WALK_SPEED_KMH) * 60
+    };
   }
 
   // ============================================================
@@ -220,6 +287,8 @@
     var latStep = (GRID_BOUNDS.maxLat - GRID_BOUNDS.minLat) / GRID_SIZE;
     var lngStep = (GRID_BOUNDS.maxLng - GRID_BOUNDS.minLng) / GRID_SIZE;
     var isRail = mode.type === 'rail';
+    var isBus = mode.type === 'bus' && transitData;
+    var isBoat = mode.type === 'boat' && transitData;
 
     for (var r = 0; r < GRID_SIZE; r++) {
       grid[r] = [];
@@ -230,8 +299,7 @@
         var straightKm = haversineKm(DMK[0], DMK[1], lat, lng);
 
         if (isRail) {
-          // For rail: find best station near this point, compute
-          // rail_distance_from_DMK + walking distance to/from station
+          // For rail: find best station near this point
           var bestCost = Infinity;
           var bestTime = Infinity;
 
@@ -244,11 +312,9 @@
             var railKm = stationDistances[sid];
             if (railKm === Infinity) continue;
 
-            // Walking to DMK station + rail + walking from destination station
-            var totalKm = railKm;
-            var fare = calculateFare(mode, totalKm);
+            var fare = calculateFare(mode, railKm);
             var walkTimeMins = (walkKm / WALK_SPEED_KMH) * 60;
-            var railTimeMins = calculateTime(mode, totalKm);
+            var railTimeMins = calculateTime(mode, railKm);
             var totalTime = walkTimeMins + railTimeMins;
 
             if (viewType === 'cost') {
@@ -259,9 +325,40 @@
           }
 
           grid[r][c] = viewType === 'cost' ? bestCost : bestTime;
+
+        } else if (isBus) {
+          // Bus: use pre-computed nearest reachable stop
+          var busStop = findNearestStop(busGrid, transitData.bus_stops, lat, lng, MAX_WALK_KM);
+          if (busStop) {
+            if (viewType === 'cost') {
+              grid[r][c] = calculateFare(mode, busStop.transitKm);
+            } else {
+              grid[r][c] = busStop.transitTime + busStop.walkTime;
+            }
+          } else {
+            grid[r][c] = Infinity;
+          }
+
+        } else if (isBoat) {
+          // Boat: use pre-computed nearest reachable pier
+          var pier = findNearestStop(boatGrid, transitData.boat_piers, lat, lng, MAX_WALK_KM);
+          if (pier) {
+            if (viewType === 'cost') {
+              grid[r][c] = calculateFare(mode, pier.transitKm);
+            } else {
+              grid[r][c] = pier.transitTime + pier.walkTime;
+            }
+          } else {
+            grid[r][c] = Infinity;
+          }
+
         } else {
-          // For road modes: apply directional circuity
+          // Road modes: apply directional circuity
           var circuity = getCircuityFactor(DMK[0], DMK[1], lat, lng);
+          // Modulate with motorcycle density (dense areas = slightly lower circuity)
+          if (motoDensity && motoDensity[r] && motoDensity[r][c] > 0) {
+            circuity *= (1 - 0.15 * motoDensity[r][c]);
+          }
           var roadKm = straightKm * circuity;
 
           if (viewType === 'cost') {
@@ -270,6 +367,28 @@
             grid[r][c] = calculateTime(mode, roadKm);
           }
         }
+      }
+    }
+    return grid;
+  }
+
+  function computeMultiModalGrid() {
+    // For each cell, find the minimum cost/time across all modes
+    var grid = [];
+    var modeGrids = [];
+    for (var m = 0; m < transportModes.length; m++) {
+      modeGrids.push(computeGridCost(transportModes[m]));
+    }
+    for (var r = 0; r < GRID_SIZE; r++) {
+      grid[r] = [];
+      for (var c = 0; c < GRID_SIZE; c++) {
+        var best = Infinity;
+        for (var mg = 0; mg < modeGrids.length; mg++) {
+          if (modeGrids[mg][r][c] < best) {
+            best = modeGrids[mg][r][c];
+          }
+        }
+        grid[r][c] = best;
       }
     }
     return grid;
@@ -376,8 +495,10 @@
     if (!isolineLayer || !selectedMode) return;
     isolineLayer.clearLayers();
     if (stationLayer) stationLayer.clearLayers();
+    if (transitLayer) transitLayer.clearLayers();
 
-    var grid = computeGridCost(selectedMode);
+    var isMultiModal = selectedMode.id === 'multimodal';
+    var grid = isMultiModal ? computeMultiModalGrid() : computeGridCost(selectedMode);
     var bands = viewType === 'cost' ? COST_BANDS : TIME_BANDS;
 
     // Draw from outermost to innermost
@@ -397,9 +518,19 @@
       }
     }
 
-    // For rail modes, also show reachable stations
-    if (selectedMode.type === 'rail') {
+    // Show reachable stations for rail modes
+    if (selectedMode.type === 'rail' || isMultiModal) {
       drawReachableStations(bands);
+    }
+
+    // Show transit stops overlay
+    if (showTransitStops && transitData) {
+      if (selectedMode.type === 'bus' || isMultiModal) {
+        drawTransitStops(transitData.bus_stops, bands, 2, '#2196F3');
+      }
+      if (selectedMode.type === 'boat' || isMultiModal) {
+        drawTransitStops(transitData.boat_piers, bands, 3, '#00897B');
+      }
     }
   }
 
@@ -445,6 +576,38 @@
     }
   }
 
+  function drawTransitStops(stops, bands, radius, color) {
+    if (!transitLayer) return;
+    var maxBand = bands[bands.length - 1];
+
+    for (var i = 0; i < stops.length; i++) {
+      var s = stops[i]; // [lat, lng, km, time]
+      var value;
+      if (viewType === 'cost') {
+        value = selectedMode.id === 'multimodal' ? s[2] * 3 : calculateFare(selectedMode, s[2]);
+      } else {
+        value = s[3];
+      }
+      if (value > maxBand) continue;
+
+      var colorIdx = 0;
+      for (var b = 0; b < bands.length; b++) {
+        if (value <= bands[b]) { colorIdx = b; break; }
+      }
+
+      var marker = L.circleMarker([s[0], s[1]], {
+        radius: radius,
+        fillColor: color,
+        color: '#333',
+        weight: 0.5,
+        fillOpacity: 0.7
+      });
+      var lbl = viewType === 'cost' ? Math.round(value) + ' THB' : Math.round(value) + ' min';
+      marker.bindPopup('Transit stop<br>From DMK: ' + s[2].toFixed(1) + ' km | ' + lbl);
+      marker.addTo(transitLayer);
+    }
+  }
+
   // ============================================================
   // Data Loading
   // ============================================================
@@ -462,6 +625,22 @@
       trainEdges = results[2];
 
       computeStationDistances();
+
+      // Load pre-computed transit reachability (graceful fallback)
+      try {
+        var transitResp = await fetch('data/dmk-transit-reach.json');
+        if (transitResp.ok) {
+          transitData = await transitResp.json();
+          busGrid = buildTransitGrid(transitData.bus_stops);
+          boatGrid = buildTransitGrid(transitData.boat_piers);
+          motoDensity = transitData.moto_density;
+          console.log('Transit data loaded: ' +
+            transitData.bus_stops.length + ' bus stops, ' +
+            transitData.boat_piers.length + ' boat piers');
+        }
+      } catch (e) {
+        console.warn('Transit data not available, using fallback:', e.message);
+      }
 
       document.getElementById('isoline-loading').classList.add('hidden');
       initMap();
@@ -498,6 +677,7 @@
 
     isolineLayer = L.layerGroup().addTo(map);
     stationLayer = L.layerGroup().addTo(map);
+    transitLayer = L.layerGroup().addTo(map);
   }
 
   // ============================================================
@@ -518,6 +698,7 @@
       btn.addEventListener('click', function(e) {
         var modeId = e.target.dataset.modeId;
         var m = transportModes.find(function(x) { return x.id === modeId; });
+        if (!m) m = modeId === 'multimodal' ? { id: 'multimodal' } : null;
         if (m) {
           selectedMode = m;
           setActiveMode(modeId);
@@ -527,6 +708,20 @@
       });
       container.appendChild(btn);
     }
+
+    // Add Multi-modal button
+    var mmBtn = document.createElement('button');
+    mmBtn.className = 'mode-btn';
+    mmBtn.style.setProperty('--btn-color', '#FF6F00');
+    mmBtn.textContent = 'Multi-modal';
+    mmBtn.dataset.modeId = 'multimodal';
+    mmBtn.addEventListener('click', function() {
+      selectedMode = { id: 'multimodal', name: 'Multi-modal (Optimal)' };
+      setActiveMode('multimodal');
+      drawIsolines();
+      updateLegend();
+    });
+    container.appendChild(mmBtn);
   }
 
   function setActiveMode(modeId) {
@@ -570,6 +765,14 @@
         updateLegend();
       });
     });
+
+    var transitToggle = document.getElementById('transitToggle');
+    if (transitToggle) {
+      transitToggle.addEventListener('change', function() {
+        showTransitStops = transitToggle.checked;
+        drawIsolines();
+      });
+    }
   }
 
   // ============================================================
