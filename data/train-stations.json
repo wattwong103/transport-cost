@@ -45,106 +45,106 @@
     "gn24": {
       "name": "Khu Khot",
       "nameTh": "คูคต",
-      "lat": 13.9328,
-      "lng": 100.6453,
+      "lat": 13.93237,
+      "lng": 100.64652,
       "line": "green_sukhumvit"
     },
     "gn22": {
       "name": "Royal Thai Air Force Museum",
       "nameTh": "พิพิธภัณฑ์กองทัพอากาศ",
-      "lat": 13.9178,
-      "lng": 100.6216,
+      "lat": 13.91797,
+      "lng": 100.62169,
       "line": "green_sukhumvit"
     },
     "gn19": {
       "name": "Saphan Mai",
       "nameTh": "สะพานใหม่",
-      "lat": 13.896,
-      "lng": 100.5953,
+      "lat": 13.89661,
+      "lng": 100.60908,
       "line": "green_sukhumvit"
     },
     "gn17": {
       "name": "Wat Phra Sri Mahathat",
       "nameTh": "วัดพระศรีมหาธาตุ",
-      "lat": 13.8779,
-      "lng": 100.582,
+      "lat": 13.87528,
+      "lng": 100.59673,
       "line": "green_sukhumvit"
     },
     "gn13": {
       "name": "Kasetsart University",
       "nameTh": "มหาวิทยาลัยเกษตรศาสตร์",
-      "lat": 13.8506,
-      "lng": 100.5544,
+      "lat": 13.84231,
+      "lng": 100.57711,
       "line": "green_sukhumvit"
     },
     "gn9": {
       "name": "Ha Yaek Lat Phrao",
       "nameTh": "ห้าแยกลาดพร้าว",
-      "lat": 13.8166,
-      "lng": 100.5617,
+      "lat": 13.81668,
+      "lng": 100.56204,
       "line": "green_sukhumvit"
     },
     "gn5": {
       "name": "Saphan Khwai",
       "nameTh": "สะพานควาย",
-      "lat": 13.7938,
-      "lng": 100.5494,
+      "lat": 13.79382,
+      "lng": 100.54971,
       "line": "green_sukhumvit"
     },
     "gn3": {
       "name": "Ari",
       "nameTh": "อารีย์",
-      "lat": 13.7797,
-      "lng": 100.5449,
+      "lat": 13.77971,
+      "lng": 100.54462,
       "line": "green_sukhumvit"
     },
     "gn1": {
       "name": "Mo Chit",
       "nameTh": "หมอชิต",
-      "lat": 13.8027,
-      "lng": 100.5537,
+      "lat": 13.80261,
+      "lng": 100.5538,
       "line": "green_sukhumvit"
     },
     "ctb": {
       "name": "Siam",
       "nameTh": "สยาม",
-      "lat": 13.7454,
-      "lng": 100.5342,
+      "lat": 13.74562,
+      "lng": 100.53422,
       "line": "green_sukhumvit"
     },
     "ge1": {
       "name": "Chit Lom",
       "nameTh": "ชิดลม",
       "lat": 13.7441,
-      "lng": 100.543,
+      "lng": 100.54307,
       "line": "green_sukhumvit"
     },
     "ge3": {
       "name": "Nana",
       "nameTh": "นานา",
-      "lat": 13.7401,
-      "lng": 100.5552,
+      "lat": 13.74054,
+      "lng": 100.55543,
       "line": "green_sukhumvit"
     },
     "ge4": {
       "name": "Asok",
       "nameTh": "อโศก",
-      "lat": 13.7369,
-      "lng": 100.5601,
+      "lat": 13.73704,
+      "lng": 100.56036,
       "line": "green_sukhumvit"
     },
     "ge6": {
       "name": "Thong Lo",
       "nameTh": "ทองหล่อ",
-      "lat": 13.7246,
-      "lng": 100.5782,
+      "lat": 13.72423,
+      "lng": 100.57851,
       "line": "green_sukhumvit"
     },
     "ge8": {
       "name": "On Nut",
       "nameTh": "อ่อนนุช",
-      "lat": 13.7055,
-      "lng": 100.6012,
+      "lat": 13.70562,
+      "lng": 100.601,
       "line": "green_sukhumvit"
     },
     "ge12": {
@@ -164,344 +164,344 @@
     "ge19": {
       "name": "Pak Nam",
       "nameTh": "ปากน้ำ",
-      "lat": 13.6025,
-      "lng": 100.5976,
+      "lat": 13.60212,
+      "lng": 100.59709,
       "line": "green_sukhumvit"
     },
     "ge23": {
       "name": "Kheha",
       "nameTh": "เคหะฯ",
-      "lat": 13.5686,
-      "lng": 100.5808,
+      "lat": 13.56769,
+      "lng": 100.60769,
       "line": "green_sukhumvit"
     },
     "cta": {
       "name": "National Stadium",
       "nameTh": "สนามกีฬาแห่งชาติ",
-      "lat": 13.7462,
-      "lng": 100.529,
+      "lat": 13.74651,
+      "lng": 100.52909,
       "line": "green_silom"
     },
     "gs1": {
       "name": "Ratchadamri",
       "nameTh": "ราชดำริ",
-      "lat": 13.7437,
-      "lng": 100.5399,
+      "lat": 13.73947,
+      "lng": 100.53945,
       "line": "green_silom"
     },
     "gs3": {
       "name": "Chong Nonsi",
       "nameTh": "ช่องนนทรี",
-      "lat": 13.7234,
-      "lng": 100.529,
+      "lat": 13.7238,
+      "lng": 100.52933,
       "line": "green_silom"
     },
     "gs5": {
       "name": "Surasak",
       "nameTh": "สุรศักดิ์",
-      "lat": 13.719,
-      "lng": 100.5178,
+      "lat": 13.71927,
+      "lng": 100.52146,
       "line": "green_silom"
     },
     "gs6": {
       "name": "Saphan Taksin",
       "nameTh": "สะพานตากสิน",
-      "lat": 13.7186,
-      "lng": 100.5143,
+      "lat": 13.71881,
+      "lng": 100.51422,
       "line": "green_silom"
     },
     "gs8": {
       "name": "Krung Thon Buri",
       "nameTh": "กรุงธนบุรี",
-      "lat": 13.7209,
-      "lng": 100.5027,
+      "lat": 13.72093,
+      "lng": 100.50272,
       "line": "green_silom"
     },
     "gs10": {
       "name": "Wutthakat",
       "nameTh": "วุฒากาศ",
-      "lat": 13.713,
-      "lng": 100.4872,
+      "lat": 13.71302,
+      "lng": 100.4689,
       "line": "green_silom"
     },
     "gs12": {
       "name": "Bang Wa",
       "nameTh": "บางหว้า",
-      "lat": 13.7209,
-      "lng": 100.4576,
+      "lat": 13.72079,
+      "lng": 100.45779,
       "line": "green_silom"
     },
     "bl1": {
       "name": "Hua Lamphong",
       "nameTh": "หัวลำโพง",
-      "lat": 13.7378,
-      "lng": 100.5173,
+      "lat": 13.73757,
+      "lng": 100.51713,
       "line": "blue"
     },
     "bl3": {
       "name": "Sam Yan",
       "nameTh": "สามย่าน",
-      "lat": 13.7321,
-      "lng": 100.5291,
+      "lat": 13.73206,
+      "lng": 100.53012,
       "line": "blue"
     },
     "bl5": {
       "name": "Si Lom",
       "nameTh": "สีลม",
-      "lat": 13.7285,
-      "lng": 100.5365,
+      "lat": 13.7292,
+      "lng": 100.53707,
       "line": "blue"
     },
     "bl7": {
       "name": "Lumphini",
       "nameTh": "ลุมพินี",
-      "lat": 13.7258,
-      "lng": 100.5467,
+      "lat": 13.72561,
+      "lng": 100.54572,
       "line": "blue"
     },
     "bl10": {
       "name": "Phetchaburi",
       "nameTh": "เพชรบุรี",
-      "lat": 13.7484,
-      "lng": 100.5621,
+      "lat": 13.74919,
+      "lng": 100.56342,
       "line": "blue"
     },
     "bl13": {
       "name": "Phra Ram 9",
       "nameTh": "พระราม 9",
-      "lat": 13.7576,
-      "lng": 100.5651,
+      "lat": 13.75782,
+      "lng": 100.56528,
       "line": "blue"
     },
     "bl15": {
       "name": "Thailand Cultural Centre",
-      "nameTh": "ศูนย์วัฒนธรรมฯ",
-      "lat": 13.7651,
-      "lng": 100.5703,
+      "nameTh": "ศูนย์วัฒนธรรมแห่งประเทศไทย",
+      "lat": 13.76629,
+      "lng": 100.57008,
       "line": "blue"
     },
     "bl17": {
       "name": "Sutthisan",
       "nameTh": "สุทธิสาร",
-      "lat": 13.7794,
-      "lng": 100.574,
+      "lat": 13.78949,
+      "lng": 100.57408,
       "line": "blue"
     },
     "bl19": {
       "name": "Ratchadaphisek",
       "nameTh": "รัชดาภิเษก",
-      "lat": 13.7865,
-      "lng": 100.5738,
+      "lat": 13.79897,
+      "lng": 100.57455,
       "line": "blue"
     },
     "bl21": {
       "name": "Phahon Yothin",
       "nameTh": "พหลโยธิน",
-      "lat": 13.8129,
-      "lng": 100.5615,
+      "lat": 13.81288,
+      "lng": 100.56146,
       "line": "blue"
     },
     "bl22": {
       "name": "Chatuchak Park",
       "nameTh": "สวนจตุจักร",
-      "lat": 13.8023,
-      "lng": 100.5536,
+      "lat": 13.80296,
+      "lng": 100.55328,
       "line": "blue"
     },
     "bl24": {
       "name": "Kamphaeng Phet",
       "nameTh": "กำแพงเพชร",
-      "lat": 13.8092,
-      "lng": 100.5507,
+      "lat": 13.79795,
+      "lng": 100.54788,
       "line": "blue"
     },
     "bl26": {
       "name": "Bang Sue",
       "nameTh": "บางซื่อ",
-      "lat": 13.8064,
-      "lng": 100.528,
+      "lat": 13.80239,
+      "lng": 100.54105,
       "line": "blue"
     },
     "bl28": {
       "name": "Bang Pho",
       "nameTh": "บางโพ",
-      "lat": 13.8062,
-      "lng": 100.5095,
+      "lat": 13.8064,
+      "lng": 100.52101,
       "line": "blue"
     },
     "bl30": {
       "name": "Bang Yi Khan",
       "nameTh": "บางยี่ขัน",
-      "lat": 13.7898,
-      "lng": 100.488,
+      "lat": 13.77738,
+      "lng": 100.48526,
       "line": "blue"
     },
     "bl32": {
       "name": "Itsaraphap",
       "nameTh": "อิสรภาพ",
-      "lat": 13.7568,
-      "lng": 100.4854,
+      "lat": 13.73836,
+      "lng": 100.4857,
       "line": "blue"
     },
     "bl34": {
       "name": "Tha Phra",
       "nameTh": "ท่าพระ",
-      "lat": 13.728,
-      "lng": 100.4634,
+      "lat": 13.72965,
+      "lng": 100.47404,
       "line": "blue"
     },
     "bl36": {
       "name": "Bang Khae",
       "nameTh": "บางแค",
-      "lat": 13.7199,
-      "lng": 100.4072,
+      "lat": 13.71194,
+      "lng": 100.42234,
       "line": "blue"
     },
     "bl38": {
       "name": "Lak Song",
       "nameTh": "หลักสอง",
-      "lat": 13.7218,
-      "lng": 100.3903,
+      "lat": 13.71088,
+      "lng": 100.40948,
       "line": "blue"
     },
     "pp1": {
       "name": "Khlong Bang Phai",
       "nameTh": "คลองบางไผ่",
-      "lat": 13.8969,
-      "lng": 100.4136,
+      "lat": 13.89243,
+      "lng": 100.40822,
       "line": "purple"
     },
     "pp4": {
       "name": "Sam Yaek Bang Yai",
       "nameTh": "สามแยกบางใหญ่",
-      "lat": 13.8754,
-      "lng": 100.4269,
+      "lat": 13.87467,
+      "lng": 100.41936,
       "line": "purple"
     },
     "pp7": {
       "name": "Yaek Nonthaburi 1",
       "nameTh": "แยกนนทบุรี 1",
-      "lat": 13.8558,
-      "lng": 100.4788,
+      "lat": 13.86596,
+      "lng": 100.49408,
       "line": "purple"
     },
     "pp9": {
       "name": "Ministry of Public Health",
       "nameTh": "กระทรวงสาธารณสุข",
-      "lat": 13.8469,
-      "lng": 100.5041,
+      "lat": 13.84853,
+      "lng": 100.51472,
       "line": "purple"
     },
     "pp11": {
       "name": "Nonthaburi Civic Center",
       "nameTh": "ศูนย์ราชการนนทบุรี",
-      "lat": 13.8557,
-      "lng": 100.5166,
+      "lat": 13.86017,
+      "lng": 100.51307,
       "line": "purple"
     },
     "pp14": {
       "name": "Wong Sawang",
       "nameTh": "วงศ์สว่าง",
-      "lat": 13.838,
-      "lng": 100.5278,
+      "lat": 13.82986,
+      "lng": 100.5265,
       "line": "purple"
     },
     "pp16": {
       "name": "Tao Poon",
       "nameTh": "เตาปูน",
-      "lat": 13.8064,
-      "lng": 100.5316,
+      "lat": 13.80616,
+      "lng": 100.53078,
       "line": "purple"
     },
     "arl1": {
       "name": "Phaya Thai",
       "nameTh": "พญาไท",
-      "lat": 13.7565,
-      "lng": 100.5343,
+      "lat": 13.75683,
+      "lng": 100.53449,
       "line": "airport"
     },
     "arl2": {
       "name": "Ratchaprarop",
       "nameTh": "ราชปรารภ",
-      "lat": 13.7534,
-      "lng": 100.5421,
+      "lat": 13.75509,
+      "lng": 100.54205,
       "line": "airport"
     },
     "arl3": {
       "name": "Makkasan",
       "nameTh": "มักกะสัน",
-      "lat": 13.75,
-      "lng": 100.56,
+      "lat": 13.75107,
+      "lng": 100.55981,
       "line": "airport"
     },
     "arl4": {
       "name": "Ramkhamhaeng",
       "nameTh": "รามคำแหง",
-      "lat": 13.7546,
-      "lng": 100.6062,
+      "lat": 13.74297,
+      "lng": 100.60062,
       "line": "airport"
     },
     "arl5": {
       "name": "Hua Mak",
       "nameTh": "หัวหมาก",
-      "lat": 13.738,
-      "lng": 100.6453,
+      "lat": 13.73802,
+      "lng": 100.64526,
       "line": "airport"
     },
     "arl6": {
       "name": "Ban Thap Chang",
       "nameTh": "บ้านทับช้าง",
-      "lat": 13.7278,
-      "lng": 100.6744,
+      "lat": 13.73286,
+      "lng": 100.69081,
       "line": "airport"
     },
     "arl7": {
       "name": "Lat Krabang",
       "nameTh": "ลาดกระบัง",
-      "lat": 13.7275,
-      "lng": 100.7176,
+      "lat": 13.72765,
+      "lng": 100.74783,
       "line": "airport"
     },
     "arl8": {
       "name": "Suvarnabhumi",
       "nameTh": "สุวรรณภูมิ",
-      "lat": 13.69,
-      "lng": 100.7501,
+      "lat": 13.6943,
+      "lng": 100.75134,
       "line": "airport"
     },
     "yl1": {
       "name": "Lat Phrao",
       "nameTh": "ลาดพร้าว",
-      "lat": 13.8059,
-      "lng": 100.5731,
+      "lat": 13.80698,
+      "lng": 100.57478,
       "line": "yellow"
     },
     "yl5": {
-      "name": "Chokchai 4",
+      "name": "Chok Chai 4",
       "nameTh": "โชคชัย 4",
-      "lat": 13.7906,
-      "lng": 100.6029,
+      "lat": 13.79443,
+      "lng": 100.59443,
       "line": "yellow"
     },
     "yl8": {
       "name": "Lat Phrao 71",
       "nameTh": "ลาดพร้าว 71",
-      "lat": 13.7799,
-      "lng": 100.6222,
+      "lat": 13.78709,
+      "lng": 100.60757,
       "line": "yellow"
     },
     "yl11": {
       "name": "Hua Mak",
       "nameTh": "หัวหมาก",
-      "lat": 13.7569,
-      "lng": 100.6435,
+      "lat": 13.73615,
+      "lng": 100.64114,
       "line": "yellow"
     },
     "yl14": {
       "name": "Si Nut",
       "nameTh": "ศรีนุช",
-      "lat": 13.7354,
-      "lng": 100.6556,
+      "lat": 13.7111,
+      "lng": 100.6442,
       "line": "yellow"
     },
     "yl17": {
@@ -519,31 +519,31 @@
       "line": "yellow"
     },
     "yl23": {
-      "name": "Sam Rong",
-      "nameTh": "สำโรง",
-      "lat": 13.6452,
-      "lng": 100.6553,
+      "name": "Si La Salle",
+      "nameTh": "ศรีลาซาล",
+      "lat": 13.65497,
+      "lng": 100.64216,
       "line": "yellow"
     },
     "pk1": {
       "name": "Nonthaburi Civic Center",
       "nameTh": "ศูนย์ราชการนนทบุรี",
-      "lat": 13.8557,
-      "lng": 100.5166,
+      "lat": 13.8597,
+      "lng": 100.51811,
       "line": "pink"
     },
     "pk5": {
-      "name": "Pak Kret",
-      "nameTh": "ปากเกร็ด",
-      "lat": 13.893,
-      "lng": 100.5243,
+      "name": "Si Rat",
+      "nameTh": "ศรีรัช",
+      "lat": 13.90064,
+      "lng": 100.54003,
       "line": "pink"
     },
     "pk9": {
       "name": "Lak Si",
       "nameTh": "หลักสี่",
-      "lat": 13.8865,
-      "lng": 100.5645,
+      "lat": 13.88405,
+      "lng": 100.58268,
       "line": "pink"
     },
     "pk14": {
@@ -577,36 +577,36 @@
     "pk30": {
       "name": "Min Buri",
       "nameTh": "มีนบุรี",
-      "lat": 13.812,
-      "lng": 100.7281,
+      "lat": 13.80841,
+      "lng": 100.73269,
       "line": "pink"
     },
     "rdn1": {
       "name": "Krung Thep Aphiwat",
       "nameTh": "กรุงเทพอภิวัฒน์",
-      "lat": 13.8123,
-      "lng": 100.527,
+      "lat": 13.80403,
+      "lng": 100.54171,
       "line": "red_north"
     },
     "rdn3": {
       "name": "Bang Khen",
       "nameTh": "บางเขน",
-      "lat": 13.8541,
-      "lng": 100.5858,
+      "lat": 13.84937,
+      "lng": 100.56167,
       "line": "red_north"
     },
     "rdn6": {
-      "name": "Don Mueang",
+      "name": "Don Muang",
       "nameTh": "ดอนเมือง",
-      "lat": 13.9133,
-      "lng": 100.5957,
+      "lat": 13.91469,
+      "lng": 100.59787,
       "line": "red_north"
     },
     "rdn10": {
       "name": "Rangsit",
       "nameTh": "รังสิต",
-      "lat": 13.9635,
-      "lng": 100.6046,
+      "lat": 13.99054,
+      "lng": 100.60215,
       "line": "red_north"
     },
     "rdw1": {
@@ -619,36 +619,36 @@
     "rdw2": {
       "name": "Bang Son",
       "nameTh": "บางซ่อน",
-      "lat": 13.8046,
-      "lng": 100.5132,
+      "lat": 13.82213,
+      "lng": 100.53421,
       "line": "red_west"
     },
     "rdw3": {
       "name": "Bang Bamru",
       "nameTh": "บางบำหรุ",
-      "lat": 13.7965,
-      "lng": 100.4862,
+      "lat": 13.79221,
+      "lng": 100.4775,
       "line": "red_west"
     },
     "rdw4": {
-      "name": "Taling Chan",
-      "nameTh": "ตลิ่งชัน",
-      "lat": 13.7834,
-      "lng": 100.4554,
+      "name": "Taling Chan Junction",
+      "nameTh": "ชุมทางตลิ่งชัน",
+      "lat": 13.78927,
+      "lng": 100.44008,
       "line": "red_west"
     },
     "gw1": {
       "name": "Khlong San",
       "nameTh": "คลองสาน",
-      "lat": 13.7224,
-      "lng": 100.5079,
+      "lat": 13.73031,
+      "lng": 100.50772,
       "line": "gold"
     },
     "gd2": {
       "name": "Charoen Nakhon",
       "nameTh": "เจริญนคร",
-      "lat": 13.7244,
-      "lng": 100.501,
+      "lat": 13.72646,
+      "lng": 100.50907,
       "line": "gold"
     },
     "gd3": {
@@ -666,10 +666,10 @@
       "line": "red_north"
     },
     "bkk": {
-      "name": "Suvarnabhumi Airport",
+      "name": "Suvarnabhumi",
       "nameTh": "สุวรรณภูมิ",
-      "lat": 13.69,
-      "lng": 100.7501,
+      "lat": 13.69484,
+      "lng": 100.75139,
       "line": "airport"
     },
     "central": {
@@ -708,24 +708,24 @@
       "line": "purple"
     },
     "bn22": {
-      "name": "Bang Sue",
-      "nameTh": "บางซื่อ",
-      "lat": 13.8064,
-      "lng": 100.528,
+      "name": "Tao Poon",
+      "nameTh": "เตาปูน",
+      "lat": 13.80616,
+      "lng": 100.53078,
       "line": "blue"
     },
     "bn7": {
-      "name": "Bang Pho Interchange",
-      "nameTh": "บางโพ",
-      "lat": 13.8062,
-      "lng": 100.5095,
+      "name": "Bang Phlat",
+      "nameTh": "บางพลัด",
+      "lat": 13.79241,
+      "lng": 100.50489,
       "line": "blue"
     },
     "brt1": {
-      "name": "BRT Ratchapruek",
-      "nameTh": "ราชพฤกษ์",
-      "lat": 13.713,
-      "lng": 100.4872,
+      "name": "Talat Phlu",
+      "nameTh": "ตลาดพลู",
+      "lat": 13.71422,
+      "lng": 100.47669,
       "line": "green_silom"
     },
     "brtn": {
@@ -738,8 +738,8 @@
     "bl11": {
       "name": "Sukhumvit",
       "nameTh": "สุขุมวิท",
-      "lat": 13.75127,
-      "lng": 100.56393,
+      "lat": 13.73739,
+      "lng": 100.56134,
       "line": "blue"
     },
     "bl12": {
@@ -759,8 +759,8 @@
     "bl16": {
       "name": "Huai Khwang",
       "nameTh": "ห้วยขวาง",
-      "lat": 13.77217,
-      "lng": 100.57335,
+      "lat": 13.77869,
+      "lng": 100.57357,
       "line": "blue"
     },
     "bl18": {
@@ -773,22 +773,22 @@
     "bl1a": {
       "name": "Wat Mangkon",
       "nameTh": "วัดมังกร",
-      "lat": 13.73557,
-      "lng": 100.52165,
+      "lat": 13.74221,
+      "lng": 100.50991,
       "line": "blue"
     },
     "bl2": {
       "name": "Sam Yot",
       "nameTh": "สามยอด",
-      "lat": 13.73401,
-      "lng": 100.52545,
+      "lat": 13.747,
+      "lng": 100.5023,
       "line": "blue"
     },
     "bl20": {
       "name": "Lat Phrao",
       "nameTh": "ลาดพร้าว",
-      "lat": 13.79938,
-      "lng": 100.57463,
+      "lat": 13.8065,
+      "lng": 100.57287,
       "line": "blue"
     },
     "bl23": {
@@ -806,45 +806,45 @@
       "line": "blue"
     },
     "bl27": {
-      "name": "Bang Pho",
-      "nameTh": "บางโพ",
-      "lat": 13.80616,
-      "lng": 100.51878,
+      "name": "Bang O",
+      "nameTh": "บางอ้อ",
+      "lat": 13.79898,
+      "lng": 100.50979,
       "line": "blue"
     },
     "bl29": {
       "name": "Sirindhorn",
       "nameTh": "สิรินธร",
-      "lat": 13.79308,
-      "lng": 100.50535,
+      "lat": 13.78387,
+      "lng": 100.49333,
       "line": "blue"
     },
     "bl31": {
       "name": "Bang Khun Non",
       "nameTh": "บางขุนนนท์",
-      "lat": 13.77546,
-      "lng": 100.48372,
+      "lat": 13.76333,
+      "lng": 100.4733,
       "line": "blue"
     },
     "bl33": {
       "name": "Sanam Chai",
       "nameTh": "สนามไชย",
-      "lat": 13.73361,
-      "lng": 100.49025,
+      "lat": 13.74433,
+      "lng": 100.49462,
       "line": "blue"
     },
     "bl35": {
       "name": "Phetkasem 48",
       "nameTh": "เพชรเกษม 48",
-      "lat": 13.71923,
-      "lng": 100.43675,
+      "lat": 13.71556,
+      "lng": 100.44545,
       "line": "blue"
     },
     "bl37": {
       "name": "Phasi Charoen",
       "nameTh": "ภาษีเจริญ",
-      "lat": 13.71086,
-      "lng": 100.40949,
+      "lat": 13.71291,
+      "lng": 100.43433,
       "line": "blue"
     },
     "bl4": {
@@ -857,15 +857,15 @@
     "bl6": {
       "name": "Khlong Toei",
       "nameTh": "คลองเตย",
-      "lat": 13.72729,
-      "lng": 100.54166,
+      "lat": 13.72213,
+      "lng": 100.55437,
       "line": "blue"
     },
     "bl8": {
-      "name": "Khlong Toei",
-      "nameTh": "คลองเตย",
-      "lat": 13.73266,
-      "lng": 100.55995,
+      "name": "Queen Sirikit National Convention Centre",
+      "nameTh": "ศูนย์การประชุมแห่งชาติสิริกิติ์",
+      "lat": 13.72267,
+      "lng": 100.55991,
       "line": "blue"
     },
     "bl9": {
@@ -876,115 +876,115 @@
       "line": "blue"
     },
     "ge10": {
-      "name": "Royal Thai Naval Academy",
-      "nameTh": "โรงเรียนนายเรือ",
-      "lat": 13.68814,
-      "lng": 100.60958,
+      "name": "Punnawithi",
+      "nameTh": "ปุณณวิถี",
+      "lat": 13.68928,
+      "lng": 100.609,
       "line": "green_sukhumvit"
     },
     "ge11": {
-      "name": "Pak Nam",
-      "nameTh": "ปากน้ำ",
-      "lat": 13.68533,
-      "lng": 100.61043,
+      "name": "Udom Suk",
+      "nameTh": "อุดมสุข",
+      "lat": 13.67987,
+      "lng": 100.60947,
       "line": "green_sukhumvit"
     },
     "ge13": {
-      "name": "Si Nagarindra",
-      "nameTh": "ศรีนครินทร์",
-      "lat": 13.67821,
-      "lng": 100.60881,
+      "name": "Bang Na",
+      "nameTh": "บางนา",
+      "lat": 13.66814,
+      "lng": 100.60466,
       "line": "green_sukhumvit"
     },
     "ge15": {
-      "name": "Si La Salle",
-      "nameTh": "ศรีลาซาล",
-      "lat": 13.65427,
-      "lng": 100.59899,
+      "name": "Bearing",
+      "nameTh": "แบริ่ง",
+      "lat": 13.66118,
+      "lng": 100.60181,
       "line": "green_sukhumvit"
     },
     "ge16": {
-      "name": "Si Bearing",
-      "nameTh": "ศรีแบริ่ง",
-      "lat": 13.64346,
-      "lng": 100.59458,
+      "name": "Samrong",
+      "nameTh": "สำโรง",
+      "lat": 13.64649,
+      "lng": 100.59579,
       "line": "green_sukhumvit"
     },
     "ge17": {
-      "name": "Si Dan",
-      "nameTh": "ศรีด่าน",
-      "lat": 13.59613,
-      "lng": 100.60638,
+      "name": "Srinagarindra",
+      "nameTh": "ศรีนครินทร์",
+      "lat": 13.592,
+      "lng": 100.60904,
       "line": "green_sukhumvit"
     },
     "ge18": {
-      "name": "Si Thepha",
-      "nameTh": "ศรีเทพา",
-      "lat": 13.60625,
-      "lng": 100.59573,
+      "name": "Chang Erawan",
+      "nameTh": "ช้างเอราวัณ",
+      "lat": 13.62159,
+      "lng": 100.59016,
       "line": "green_sukhumvit"
     },
     "ge2": {
-      "name": "Bearing",
-      "nameTh": "แบริ่ง",
-      "lat": 13.74304,
-      "lng": 100.54926,
+      "name": "Phloen Chit",
+      "nameTh": "เพลินจิต",
+      "lat": 13.74307,
+      "lng": 100.54898,
       "line": "green_sukhumvit"
     },
     "ge20": {
-      "name": "Thipphawan",
-      "nameTh": "ทิพวัล",
-      "lat": 13.60022,
-      "lng": 100.59783,
+      "name": "Royal Thai Naval Academy",
+      "nameTh": "โรงเรียนนายเรือ",
+      "lat": 13.60841,
+      "lng": 100.59491,
       "line": "green_sukhumvit"
     },
     "ge21": {
       "name": "Sai Luat",
       "nameTh": "สายลวด",
-      "lat": 13.60005,
-      "lng": 100.5981,
+      "lat": 13.57778,
+      "lng": 100.60546,
       "line": "green_sukhumvit"
     },
     "ge22": {
-      "name": "Kheha",
-      "nameTh": "เคหะฯ",
-      "lat": 13.57565,
-      "lng": 100.6047,
+      "name": "Phraek Sa",
+      "nameTh": "แพรกษา",
+      "lat": 13.58419,
+      "lng": 100.60791,
       "line": "green_sukhumvit"
     },
     "ge5": {
-      "name": "Samrong",
-      "nameTh": "สำโรง",
-      "lat": 13.73082,
-      "lng": 100.5692,
+      "name": "Phrom Phong",
+      "nameTh": "พร้อมพงษ์",
+      "lat": 13.73043,
+      "lng": 100.56971,
       "line": "green_sukhumvit"
     },
     "ge7": {
-      "name": "Pu Chao",
-      "nameTh": "ปู่เจ้า",
-      "lat": 13.71508,
-      "lng": 100.58972,
+      "name": "Phra Khanong",
+      "nameTh": "พระโขนง",
+      "lat": 13.71517,
+      "lng": 100.59124,
       "line": "green_sukhumvit"
     },
     "ge9": {
-      "name": "Chang Erawan",
-      "nameTh": "ช้างเอราวัณ",
-      "lat": 13.6968,
+      "name": "Bang Chak",
+      "nameTh": "บางจาก",
+      "lat": 13.69676,
       "lng": 100.60534,
       "line": "green_sukhumvit"
     },
     "gn10": {
       "name": "Ratchayothin",
       "nameTh": "รัชโยธิน",
-      "lat": 13.82198,
-      "lng": 100.56519,
+      "lat": 13.82975,
+      "lng": 100.56972,
       "line": "green_sukhumvit"
     },
     "gn11": {
-      "name": "Phahon Yothin 24",
+      "name": "Phahonyothin 24",
       "nameTh": "พหลโยธิน 24",
-      "lat": 13.8275,
-      "lng": 100.56843,
+      "lat": 13.82412,
+      "lng": 100.56643,
       "line": "green_sukhumvit"
     },
     "gn12": {
@@ -1004,22 +1004,22 @@
     "gn15": {
       "name": "Royal Forest Department",
       "nameTh": "กรมป่าไม้",
-      "lat": 13.85547,
-      "lng": 100.58486,
+      "lat": 13.85033,
+      "lng": 100.58182,
       "line": "green_sukhumvit"
     },
     "gn16": {
       "name": "Bang Bua",
       "nameTh": "บางบัว",
-      "lat": 13.86293,
-      "lng": 100.58925,
+      "lat": 13.85605,
+      "lng": 100.58518,
       "line": "green_sukhumvit"
     },
     "gn18": {
       "name": "11th Infantry Regiment",
       "nameTh": "กรมทหารราบที่ 11",
-      "lat": 13.88051,
-      "lng": 100.59962,
+      "lat": 13.86758,
+      "lng": 100.59197,
       "line": "green_sukhumvit"
     },
     "gn2": {
@@ -1030,31 +1030,31 @@
       "line": "green_sukhumvit"
     },
     "gn20": {
-      "name": "Sai Yut",
+      "name": "Sai Yud",
       "nameTh": "สายหยุด",
-      "lat": 13.89935,
-      "lng": 100.61072,
+      "lat": 13.88845,
+      "lng": 100.60427,
       "line": "green_sukhumvit"
     },
     "gn21": {
-      "name": "Phahon Yothin 59",
+      "name": "Phahonyothin 59",
       "nameTh": "พหลโยธิน 59",
-      "lat": 13.90857,
-      "lng": 100.61616,
+      "lat": 13.88245,
+      "lng": 100.60073,
       "line": "green_sukhumvit"
     },
     "gn23": {
-      "name": "Wat Phra Sri Mahathat",
-      "nameTh": "วัดพระศรีมหาธาตุ",
-      "lat": 13.92869,
-      "lng": 100.63159,
+      "name": "Yaek Kor Por Aor",
+      "nameTh": "แยก คปอ.",
+      "lat": 13.92501,
+      "lng": 100.62584,
       "line": "green_sukhumvit"
     },
     "gn4": {
-      "name": "Ari",
-      "nameTh": "อารีย์",
-      "lat": 13.78674,
-      "lng": 100.54718,
+      "name": "Sanam Pao",
+      "nameTh": "สนามเป้า",
+      "lat": 13.77262,
+      "lng": 100.54207,
       "line": "green_sukhumvit"
     },
     "gn7": {
@@ -1067,29 +1067,29 @@
     "gn8": {
       "name": "Sena Nikhom",
       "nameTh": "เสนานิคม",
-      "lat": 13.80902,
-      "lng": 100.55757,
+      "lat": 13.83641,
+      "lng": 100.57363,
       "line": "green_sukhumvit"
     },
     "gs11": {
       "name": "Pho Nimit",
       "nameTh": "โพธิ์นิมิตร",
-      "lat": 13.72035,
-      "lng": 100.47233,
+      "lat": 13.71924,
+      "lng": 100.48597,
       "line": "green_silom"
     },
     "gs2": {
       "name": "Sala Daeng",
       "nameTh": "ศาลาแดง",
-      "lat": 13.73494,
-      "lng": 100.53311,
+      "lat": 13.72857,
+      "lng": 100.53434,
       "line": "green_silom"
     },
     "gs4": {
-      "name": "Surasak",
-      "nameTh": "สุรศักดิ์",
-      "lat": 13.71993,
-      "lng": 100.52377,
+      "name": "Saint Louis",
+      "nameTh": "เซนต์หลุยส์",
+      "lat": 13.72082,
+      "lng": 100.52669,
       "line": "green_silom"
     },
     "gs7": {
@@ -1102,57 +1102,57 @@
     "gs9": {
       "name": "Wongwian Yai",
       "nameTh": "วงเวียนใหญ่",
-      "lat": 13.72045,
-      "lng": 100.4952,
+      "lat": 13.72108,
+      "lng": 100.49516,
       "line": "green_silom"
     },
     "pk10": {
-      "name": "Si Rat",
-      "nameTh": "ศรีรัช",
-      "lat": 13.88749,
-      "lng": 100.57584,
+      "name": "National Telecom",
+      "nameTh": "โทรคมนาคมแห่งชาติ",
+      "lat": 13.88756,
+      "lng": 100.57571,
       "line": "pink"
     },
     "pk11": {
       "name": "Wat Phra Sri Mahathat",
       "nameTh": "วัดพระศรีมหาธาตุ",
-      "lat": 13.88328,
-      "lng": 100.5839,
+      "lat": 13.87435,
+      "lng": 100.59708,
       "line": "pink"
     },
     "pk12": {
       "name": "Ram Inthra 3",
       "nameTh": "รามอินทรา 3",
-      "lat": 13.87822,
-      "lng": 100.59225,
+      "lat": 13.87094,
+      "lng": 100.6026,
       "line": "pink"
     },
     "pk13": {
       "name": "Lat Pla Khao",
       "nameTh": "ลาดปลาเค้า",
-      "lat": 13.87604,
-      "lng": 100.59626,
+      "lat": 13.86278,
+      "lng": 100.6178,
       "line": "pink"
     },
     "pk15": {
-      "name": "Ram Inthra-At Narong",
-      "nameTh": "รามอินทรา-อาจณรงค์",
-      "lat": 13.86139,
-      "lng": 100.62037,
+      "name": "Ram Inthra Kor Mor 4",
+      "nameTh": "รามอินทรา กม.4",
+      "lat": 13.85829,
+      "lng": 100.62612,
       "line": "pink"
     },
     "pk16": {
-      "name": "Maitriphap",
-      "nameTh": "ไมตรีจิต",
+      "name": "Maiyalap",
+      "nameTh": "มัยลาภ",
       "lat": 13.855,
       "lng": 100.63221,
       "line": "pink"
     },
     "pk18": {
-      "name": "Nopparat",
-      "nameTh": "นพรัตน์",
-      "lat": 13.84772,
-      "lng": 100.64568,
+      "name": "Vacharaphol",
+      "nameTh": "วัชรพล",
+      "lat": 13.84925,
+      "lng": 100.64287,
       "line": "pink"
     },
     "pk19": {
@@ -1165,8 +1165,8 @@
     "pk2": {
       "name": "Khae Rai",
       "nameTh": "แคราย",
-      "lat": 13.86543,
-      "lng": 100.51959,
+      "lat": 13.86264,
+      "lng": 100.52064,
       "line": "pink"
     },
     "pk20": {
@@ -1177,87 +1177,87 @@
       "line": "pink"
     },
     "pk22": {
-      "name": "Nom Klao",
-      "nameTh": "นมคลาว",
-      "lat": 13.84473,
-      "lng": 100.65119,
+      "name": "Ram Inthra Kor Mor 6",
+      "nameTh": "รามอินทรา กม.6",
+      "lat": 13.84524,
+      "lng": 100.65023,
       "line": "pink"
     },
     "pk23": {
       "name": "Khu Bon",
-      "nameTh": "คูบอน",
-      "lat": 13.84386,
-      "lng": 100.65279,
+      "nameTh": "คู้บอน",
+      "lat": 13.84061,
+      "lng": 100.65878,
       "line": "pink"
     },
     "pk24": {
-      "name": "Sam Yaek",
-      "nameTh": "สามแยก",
-      "lat": 13.84299,
-      "lng": 100.65439,
+      "name": "Ram Inthra Kor Mor 9",
+      "nameTh": "รามอินทรา กม.9",
+      "lat": 13.83377,
+      "lng": 100.66756,
       "line": "pink"
     },
     "pk26": {
-      "name": "Setthabutbamphen",
-      "nameTh": "เศรษฐบุตรบำเพ็ญ",
-      "lat": 13.82646,
-      "lng": 100.6751,
+      "name": "Outer Ring Road-Ram Inthra",
+      "nameTh": "วงแหวนรามอินทรา",
+      "lat": 13.82444,
+      "lng": 100.67719,
       "line": "pink"
     },
     "pk27": {
       "name": "Bang Chan",
       "nameTh": "บางชัน",
-      "lat": 13.81726,
-      "lng": 100.68485,
+      "lat": 13.8127,
+      "lng": 100.70293,
       "line": "pink"
     },
     "pk28": {
       "name": "Min Buri Market",
       "nameTh": "ตลาดมีนบุรี",
-      "lat": 13.81275,
-      "lng": 100.69092,
+      "lat": 13.81249,
+      "lng": 100.72583,
       "line": "pink"
     },
     "pk29": {
-      "name": "Min Buri Terminal",
-      "nameTh": "มีนบุรี",
+      "name": "Setthabutbamphen",
+      "nameTh": "เศรษฐบุตรบำเพ็ญ",
       "lat": 13.81269,
-      "lng": 100.70923,
+      "lng": 100.71263,
       "line": "pink"
     },
     "pk3": {
       "name": "Sanambin Nam",
       "nameTh": "สนามบินน้ำ",
-      "lat": 13.87295,
-      "lng": 100.51674,
+      "lat": 13.8741,
+      "lng": 100.51631,
       "line": "pink"
     },
     "pk4": {
       "name": "Samakkhi",
       "nameTh": "สามัคคี",
-      "lat": 13.88046,
-      "lng": 100.5139,
+      "lat": 13.88926,
+      "lng": 100.51056,
       "line": "pink"
     },
     "pk6": {
       "name": "Royal Irrigation Department",
       "nameTh": "กรมชลประทาน",
-      "lat": 13.89803,
-      "lng": 100.54235,
+      "lat": 13.89854,
+      "lng": 100.50708,
       "line": "pink"
     },
     "pk7": {
       "name": "Pak Kret Bypass",
-      "nameTh": "ปากเกร็ดบายพาส",
-      "lat": 13.89778,
-      "lng": 100.54323,
+      "nameTh": "เลี่ยงเมืองปากเกร็ด",
+      "lat": 13.90648,
+      "lng": 100.51556,
       "line": "pink"
     },
     "pk8": {
       "name": "Chaeng Watthana-Pak Kret 28",
       "nameTh": "แจ้งวัฒนะ-ปากเกร็ด 28",
-      "lat": 13.8945,
-      "lng": 100.55669,
+      "lat": 13.90414,
+      "lng": 100.52927,
       "line": "pink"
     },
     "pp10": {
@@ -1284,8 +1284,8 @@
     "pp15": {
       "name": "Yaek Tiwanon",
       "nameTh": "แยกติวานนท์",
-      "lat": 13.82182,
-      "lng": 100.53273,
+      "lat": 13.83953,
+      "lng": 100.51497,
       "line": "purple"
     },
     "pp2": {
@@ -1298,50 +1298,50 @@
     "pp3": {
       "name": "Talad Bang Yai",
       "nameTh": "ตลาดบางใหญ่",
-      "lat": 13.87498,
-      "lng": 100.42304,
+      "lat": 13.88101,
+      "lng": 100.40929,
       "line": "purple"
     },
     "pp5": {
-      "name": "Sam Yaek Bang Yai",
-      "nameTh": "สามแยกบางใหญ่",
-      "lat": 13.87654,
-      "lng": 100.44333,
+      "name": "Bang Rak Yai",
+      "nameTh": "บางรักใหญ่",
+      "lat": 13.87661,
+      "lng": 100.44494,
       "line": "purple"
     },
     "pp6": {
       "name": "Bang Phlu",
       "nameTh": "บางพลู",
-      "lat": 13.87114,
-      "lng": 100.4645,
+      "lat": 13.87577,
+      "lng": 100.4338,
       "line": "purple"
     },
     "pp8": {
-      "name": "Bang Rak Noi Tha It",
-      "nameTh": "บางรักน้อย-ท่าอิฐ",
-      "lat": 13.86406,
-      "lng": 100.4979,
+      "name": "Bang Krasor",
+      "nameTh": "บางกระสอ",
+      "lat": 13.86165,
+      "lng": 100.50465,
       "line": "purple"
     },
     "rdn2": {
       "name": "Chatuchak",
       "nameTh": "จตุจักร",
-      "lat": 13.83468,
-      "lng": 100.5537,
+      "lat": 13.82662,
+      "lng": 100.54947,
       "line": "red_north"
     },
     "rdn4": {
-      "name": "Wat Samian Nari",
-      "nameTh": "วัดเสมียนนารี",
-      "lat": 13.87978,
-      "lng": 100.57828,
+      "name": "Lak Si",
+      "nameTh": "หลักสี่",
+      "lat": 13.88631,
+      "lng": 100.58194,
       "line": "red_north"
     },
     "rdn5": {
-      "name": "Bang Khen",
-      "nameTh": "บางเขน",
-      "lat": 13.89641,
-      "lng": 100.5875,
+      "name": "Kan Kheha",
+      "nameTh": "การเคหะ",
+      "lat": 13.89866,
+      "lng": 100.58887,
       "line": "red_north"
     },
     "rdn7": {
@@ -1359,31 +1359,31 @@
       "line": "red_north"
     },
     "rdn9": {
-      "name": "Lak Si",
+      "name": "Lak Hok (Rangsit U.)",
       "nameTh": "หลักสี่",
-      "lat": 13.95153,
-      "lng": 100.60703,
+      "lat": 13.96572,
+      "lng": 100.60538,
       "line": "red_north"
     },
     "yl10": {
       "name": "Bang Kapi",
       "nameTh": "บางกะปิ",
-      "lat": 13.76945,
-      "lng": 100.63914,
+      "lat": 13.76908,
+      "lng": 100.63977,
       "line": "yellow"
     },
     "yl12": {
-      "name": "Hua Mak",
-      "nameTh": "หัวหมาก",
-      "lat": 13.75052,
-      "lng": 100.64484,
+      "name": "Si Kritha",
+      "nameTh": "ศรีกรีฑา",
+      "lat": 13.75041,
+      "lng": 100.64479,
       "line": "yellow"
     },
     "yl13": {
       "name": "Kalantan",
       "nameTh": "กลันตัน",
-      "lat": 13.74457,
-      "lng": 100.64326,
+      "lat": 13.72527,
+      "lng": 100.64178,
       "line": "yellow"
     },
     "yl15": {
@@ -1394,17 +1394,17 @@
       "line": "yellow"
     },
     "yl16": {
-      "name": "Si Iam",
-      "nameTh": "ศรีเอี่ยม",
-      "lat": 13.70882,
-      "lng": 100.6447,
+      "name": "Srinagarindra 38",
+      "nameTh": "ศรีนครินทร์ 38",
+      "lat": 13.70112,
+      "lng": 100.64647,
       "line": "yellow"
     },
     "yl18": {
-      "name": "Si Thepha",
-      "nameTh": "ศรีเทพา",
-      "lat": 13.69345,
-      "lng": 100.64731,
+      "name": "Suan Luang Rama IX",
+      "nameTh": "สวนหลวง ร.9",
+      "lat": 13.69086,
+      "lng": 100.6471,
       "line": "yellow"
     },
     "yl19": {
@@ -1417,22 +1417,22 @@
     "yl2": {
       "name": "Phawana",
       "nameTh": "ภาวนา",
-      "lat": 13.80218,
-      "lng": 100.58061,
+      "lat": 13.80016,
+      "lng": 100.5842,
       "line": "yellow"
     },
     "yl21": {
-      "name": "Sai Luat",
-      "nameTh": "สายลวด",
-      "lat": 13.66525,
-      "lng": 100.64455,
+      "name": "Si Iam",
+      "nameTh": "ศรีเอี่ยม",
+      "lat": 13.66769,
+      "lng": 100.64507,
       "line": "yellow"
     },
     "yl22": {
-      "name": "Si Kritha",
-      "nameTh": "ศรีกรีฑา",
-      "lat": 13.65679,
-      "lng": 100.64252,
+      "name": "Si Bearing",
+      "nameTh": "ศรีแบริ่ง",
+      "lat": 13.64349,
+      "lng": 100.63627,
       "line": "yellow"
     },
     "yl3": {
@@ -1452,22 +1452,22 @@
     "yl6": {
       "name": "Lat Phrao 83",
       "nameTh": "ลาดพร้าว 83",
-      "lat": 13.78635,
-      "lng": 100.60895,
+      "lat": 13.7837,
+      "lng": 100.61366,
       "line": "yellow"
     },
     "yl7": {
-      "name": "Mahat Thai",
+      "name": "Mahatthai",
       "nameTh": "มหาดไทย",
-      "lat": 13.78276,
-      "lng": 100.61537,
+      "lat": 13.77837,
+      "lng": 100.62316,
       "line": "yellow"
     },
     "yl9": {
       "name": "Lat Phrao 101",
       "nameTh": "ลาดพร้าว 101",
-      "lat": 13.77431,
-      "lng": 100.63046,
+      "lat": 13.77463,
+      "lng": 100.62984,
       "line": "yellow"
     },
     "gd1": {
