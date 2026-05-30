@@ -119,11 +119,12 @@
   <header class="header">
     <div>
       <h1>Bangkok Transport Cost Comparison</h1>
-      <div class="subtitle">DMK Airport - Reachability by transport mode</div>
+      <div class="subtitle">Reachability by transport mode — click anywhere to set origin</div>
     </div>
     <nav class="header-nav">
       <a href="index.html" class="nav-link">Cost Comparison</a>
-      <a href="isoline.html" class="nav-link active">DMK Isoline</a>
+      <a href="isoline.html" class="nav-link active">Isolines</a>
+      <a href="planner.html" class="nav-link">Journey Planner</a>
     </nav>
   </header>
 
@@ -132,6 +133,12 @@
     <div id="isoline-loading" class="loading-overlay">Loading transport data...</div>
 
     <div class="isoline-controls">
+      <div class="control-row">
+        <span class="control-label">Origin</span>
+        <span id="originLabel" style="font-size:0.8rem;color:#333;font-weight:600;">DMK Airport</span>
+        <button id="resetOrigin" class="mode-btn" style="font-size:0.7rem;padding:3px 10px;display:none;">Reset to DMK</button>
+        <span style="font-size:0.7rem;color:#999;margin-left:auto;">Click map to set origin</span>
+      </div>
       <div class="control-row">
         <span class="control-label">View</span>
         <div class="view-toggle">
@@ -157,6 +164,7 @@
   </div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="js/graph.js"></script>
   <script src="js/isoline.js"></script>
 </body>
 </html>
