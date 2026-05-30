@@ -140,20 +140,14 @@
       "nameTh": "เรือด่วนเจ้าพระยา",
       "type": "boat",
       "color": "#00BCD4",
-      "baseFare": 15,
-      "fareFormula": "distance-based",
+      "baseFare": 19,
+      "fareFormula": "flat",
       "fareTable": [
-        { "maxKm": 4, "fare": 15 },
-        { "maxKm": 8, "fare": 18 },
-        { "maxKm": 12, "fare": 21 },
-        { "maxKm": 16, "fare": 24 },
-        { "maxKm": 20, "fare": 27 },
-        { "maxKm": 30, "fare": 30 },
-        { "maxKm": 99, "fare": 30 }
+        { "maxKm": 99, "fare": 19 }
       ],
       "avgSpeedKmh": 15,
       "operatingHours": "06:00-19:30",
-      "description": "Express boat service along the Chao Phraya River"
+      "description": "Express boat service along the Chao Phraya River (orange flag, most common)"
     },
     {
       "id": "khlong",
@@ -161,16 +155,16 @@
       "nameTh": "เรือคลองแสนแสบ",
       "type": "boat",
       "color": "#009688",
-      "baseFare": 8,
+      "baseFare": 16,
       "fareFormula": "distance-based",
       "fareTable": [
-        { "maxKm": 4, "fare": 8 },
-        { "maxKm": 8, "fare": 11 },
-        { "maxKm": 12, "fare": 14 },
-        { "maxKm": 16, "fare": 18 },
-        { "maxKm": 20, "fare": 22 },
-        { "maxKm": 30, "fare": 22 },
-        { "maxKm": 99, "fare": 22 }
+        { "maxKm": 4, "fare": 16 },
+        { "maxKm": 8, "fare": 19 },
+        { "maxKm": 12, "fare": 22 },
+        { "maxKm": 16, "fare": 24 },
+        { "maxKm": 20, "fare": 26 },
+        { "maxKm": 30, "fare": 26 },
+        { "maxKm": 99, "fare": 26 }
       ],
       "avgSpeedKmh": 15,
       "operatingHours": "05:30-20:30",
@@ -257,6 +251,93 @@
       "avgSpeedKmh": 20,
       "operatingHours": "24 hours",
       "description": "Grab motorcycle ride-hailing service"
+    },
+    {
+      "id": "mrt_yellow",
+      "name": "MRT Yellow Line",
+      "nameTh": "รถไฟฟ้าMRT สายสีเหลือง",
+      "type": "rail",
+      "color": "#FFD600",
+      "baseFare": 15,
+      "fareFormula": "distance-based",
+      "fareTable": [
+        { "maxKm": 2, "fare": 15 },
+        { "maxKm": 4, "fare": 20 },
+        { "maxKm": 6, "fare": 24 },
+        { "maxKm": 8, "fare": 28 },
+        { "maxKm": 10, "fare": 32 },
+        { "maxKm": 14, "fare": 36 },
+        { "maxKm": 18, "fare": 40 },
+        { "maxKm": 22, "fare": 43 },
+        { "maxKm": 26, "fare": 45 },
+        { "maxKm": 99, "fare": 45 }
+      ],
+      "avgSpeedKmh": 35,
+      "operatingHours": "06:00-00:00",
+      "description": "Monorail connecting Lat Phrao to Samrong (23 stations)"
+    },
+    {
+      "id": "mrt_pink",
+      "name": "MRT Pink Line",
+      "nameTh": "รถไฟฟ้าMRT สายสีชมพู",
+      "type": "rail",
+      "color": "#E91E93",
+      "baseFare": 15,
+      "fareFormula": "distance-based",
+      "fareTable": [
+        { "maxKm": 2, "fare": 15 },
+        { "maxKm": 4, "fare": 20 },
+        { "maxKm": 6, "fare": 24 },
+        { "maxKm": 8, "fare": 28 },
+        { "maxKm": 10, "fare": 32 },
+        { "maxKm": 14, "fare": 36 },
+        { "maxKm": 18, "fare": 40 },
+        { "maxKm": 22, "fare": 43 },
+        { "maxKm": 26, "fare": 45 },
+        { "maxKm": 99, "fare": 45 }
+      ],
+      "avgSpeedKmh": 35,
+      "operatingHours": "06:00-00:00",
+      "description": "Monorail connecting Nonthaburi to Min Buri (30 stations)"
+    },
+    {
+      "id": "srt_red",
+      "name": "SRT Red Line",
+      "nameTh": "รถไฟฟ้าชานเมือง สายสีแดง",
+      "type": "rail",
+      "color": "#C62828",
+      "baseFare": 12,
+      "fareFormula": "distance-based",
+      "fareTable": [
+        { "maxKm": 2, "fare": 12 },
+        { "maxKm": 4, "fare": 17 },
+        { "maxKm": 6, "fare": 20 },
+        { "maxKm": 8, "fare": 23 },
+        { "maxKm": 10, "fare": 26 },
+        { "maxKm": 14, "fare": 30 },
+        { "maxKm": 18, "fare": 35 },
+        { "maxKm": 22, "fare": 38 },
+        { "maxKm": 26, "fare": 42 },
+        { "maxKm": 99, "fare": 42 }
+      ],
+      "avgSpeedKmh": 35,
+      "operatingHours": "06:00-00:00",
+      "description": "Commuter rail connecting Krung Thep Aphiwat to Rangsit and Taling Chan"
+    },
+    {
+      "id": "gold",
+      "name": "Gold Line",
+      "nameTh": "รถไฟฟ้าสายสีทอง",
+      "type": "rail",
+      "color": "#BF9B30",
+      "baseFare": 17,
+      "fareFormula": "flat",
+      "fareTable": [
+        { "maxKm": 99, "fare": 17 }
+      ],
+      "avgSpeedKmh": 25,
+      "operatingHours": "06:00-00:00",
+      "description": "Short monorail connecting Krung Thon Buri BTS to ICONSIAM (3 stations)"
     }
   ]
 }

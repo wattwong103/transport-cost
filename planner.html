@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Journey Planner - Bangkok Transport Cost</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    .planner-layout {
+      display: flex;
+      height: calc(100vh - 52px);
+    }
+    .planner-sidebar {
+      width: 380px;
+      min-width: 320px;
+      background: #fff;
+      overflow-y: auto;
+      border-right: 1px solid #e0e0e0;
+      display: flex;
+      flex-direction: column;
+    }
+    .planner-map {
+      flex: 1;
+      position: relative;
+    }
+    #planner-map { width: 100%; height: 100%; }
+
+    .planner-inputs {
+      padding: 16px;
+      border-bottom: 1px solid #e0e0e0;
+    }
+    .planner-inputs h3 {
+      margin: 0 0 12px;
+      font-size: 0.95rem;
+      color: #1a237e;
+    }
+    .input-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .input-dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .input-dot.origin { background: #4CAF50; }
+    .input-dot.dest { background: #F44336; }
+    .input-field {
+      flex: 1;
+      padding: 8px 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      background: #fafafa;
+      color: #333;
+    }
+    .input-field.active {
+      border-color: #1a237e;
+      background: #fff;
+    }
+    .input-field.set {
+      border-color: #4CAF50;
+      background: #fff;
+    }
+
+    .optimize-toggle {
+      display: flex;
+      border: 2px solid #1a237e;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+    .optimize-toggle button {
+      flex: 1;
+      padding: 7px 0;
+      border: none;
+      background: white;
+      color: #1a237e;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .optimize-toggle button.active {
+      background: #1a237e;
+      color: white;
+    }
+
+    .planner-results {
+      flex: 1;
+      padding: 16px;
+      overflow-y: auto;
+    }
+    .planner-empty {
+      text-align: center;
+      color: #999;
+      font-size: 0.85rem;
+      padding: 40px 20px;
+    }
+
+    .route-summary {
+      display: flex;
+      gap: 16px;
+      padding: 12px 16px;
+      background: #f5f5f5;
+      border-radius: 10px;
+      margin-bottom: 16px;
+      justify-content: center;
+    }
+    .summary-item {
+      text-align: center;
+    }
+    .summary-value {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #1a237e;
+    }
+    .summary-label {
+      font-size: 0.7rem;
+      color: #888;
+      text-transform: uppercase;
+    }
+
+    .leg-card {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .leg-card:last-child { border-bottom: none; }
+    .leg-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 1rem;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .leg-details {
+      flex: 1;
+    }
+    .leg-title {
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: #333;
+    }
+    .leg-subtitle {
+      font-size: 0.78rem;
+      color: #666;
+      margin-top: 2px;
+    }
+    .leg-meta {
+      display: flex;
+      gap: 12px;
+      margin-top: 4px;
+      font-size: 0.75rem;
+      color: #888;
+    }
+    .leg-fare {
+      font-weight: 600;
+      color: #1a237e;
+    }
+
+    .interchanges-section {
+      padding: 16px;
+      border-top: 1px solid #e0e0e0;
+    }
+    .interchanges-section h4 {
+      margin: 0 0 8px;
+      font-size: 0.85rem;
+      color: #1a237e;
+    }
+    .interchange-chip {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 0.72rem;
+      margin: 2px;
+      background: #e8eaf6;
+      color: #1a237e;
+      cursor: pointer;
+    }
+    .interchange-chip:hover { background: #c5cae9; }
+
+    @media (max-width: 768px) {
+      .planner-layout { flex-direction: column-reverse; }
+      .planner-sidebar { width: 100%; height: 45vh; min-width: auto; border-right: none; border-top: 1px solid #e0e0e0; }
+      .planner-map { height: 55vh; }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div>
+      <h1>Bangkok Transport Cost Comparison</h1>
+      <div class="subtitle">Multi-modal journey planner</div>
+    </div>
+    <nav class="header-nav">
+      <a href="index.html" class="nav-link">Cost Comparison</a>
+      <a href="isoline.html" class="nav-link">Isolines</a>
+      <a href="planner.html" class="nav-link active">Journey Planner</a>
+    </nav>
+  </header>
+
+  <div class="planner-layout">
+    <div class="planner-sidebar">
+      <div class="planner-inputs">
+        <h3>Plan Your Journey</h3>
+        <div class="input-group">
+          <div class="input-dot origin"></div>
+          <div class="input-field active" id="originInput">Click map to set origin</div>
+        </div>
+        <div class="input-group">
+          <div class="input-dot dest"></div>
+          <div class="input-field" id="destInput">Click map to set destination</div>
+        </div>
+        <div class="optimize-toggle">
+          <button class="active" data-opt="distance">Cheapest</button>
+          <button data-opt="time">Fastest</button>
+        </div>
+      </div>
+
+      <div class="planner-results" id="results">
+        <div class="planner-empty" id="emptyState">
+          Click on the map to set your origin and destination.<br><br>
+          Or click a bus-rail interchange below to start from there.
+        </div>
+      </div>
+
+      <div class="interchanges-section" id="interchangesSection">
+        <h4>Major Interchanges</h4>
+        <div id="interchangeChips"></div>
+      </div>
+    </div>
+
+    <div class="planner-map">
+      <div id="planner-map"></div>
+      <div id="planner-loading" class="loading-overlay">Loading transit graph...</div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="js/graph.js"></script>
+  <script src="js/planner.js"></script>
+</body>
+</html>
