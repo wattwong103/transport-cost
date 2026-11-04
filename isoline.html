@@ -3,167 +3,81 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DMK Airport Isoline Map - Bangkok Transport Cost</title>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <link rel="stylesheet" href="css/style.css" />
-  <style>
-    .isoline-controls {
-      position: absolute;
-      bottom: 24px;
-      left: 24px;
-      right: 24px;
-      z-index: 1000;
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
-      padding: 16px;
-      max-width: 900px;
-      margin: 0 auto;
-    }
-    .isoline-controls h3 {
-      font-size: 0.9rem;
-      margin-bottom: 8px;
-      color: #1a237e;
-    }
-    .control-row {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin-bottom: 8px;
-    }
-    .control-row:last-child { margin-bottom: 0; }
-    .control-label {
-      font-size: 0.8rem;
-      font-weight: 600;
-      color: #555;
-      min-width: 50px;
-    }
-    .mode-btn {
-      padding: 5px 12px;
-      border: 2px solid #ddd;
-      border-radius: 16px;
-      font-size: 0.75rem;
-      cursor: pointer;
-      background: white;
-      transition: all 0.2s;
-      white-space: nowrap;
-    }
-    .mode-btn.active {
-      color: white;
-      border-color: var(--btn-color);
-      background: var(--btn-color);
-    }
-    .mode-btn:hover { transform: translateY(-1px); }
-    .view-toggle {
-      display: flex;
-      border: 2px solid #1a237e;
-      border-radius: 8px;
-      overflow: hidden;
-    }
-    .view-toggle button {
-      padding: 6px 16px;
-      border: none;
-      background: white;
-      color: #1a237e;
-      font-size: 0.8rem;
-      font-weight: 600;
-      cursor: pointer;
-    }
-    .view-toggle button.active {
-      background: #1a237e;
-      color: white;
-    }
-    .legend-bar {
-      display: flex;
-      gap: 2px;
-      align-items: center;
-      margin-top: 8px;
-    }
-    .legend-swatch {
-      height: 16px;
-      flex: 1;
-      border-radius: 2px;
-    }
-    .legend-labels {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.65rem;
-      color: #666;
-      margin-top: 2px;
-    }
-    .isoline-map-panel {
-      position: relative;
-      height: calc(100vh - 52px);
-    }
-    #isoline-map {
-      width: 100%;
-      height: 100%;
-    }
-    .transit-toggle {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 0.8rem;
-      color: #555;
-      cursor: pointer;
-    }
-    .transit-toggle input { accent-color: #1a237e; }
-    @media (max-width: 768px) {
-      .isoline-controls { bottom: 8px; left: 8px; right: 8px; padding: 12px; }
-      .mode-btn { font-size: 0.65rem; padding: 4px 8px; }
-    }
-  </style>
+  <title>Reach Map — Bangkok Fares</title>
+  <meta name="description" content="See how far you can get across Bangkok from any point, and what it costs, by public transport or road.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <header class="header">
-    <div>
-      <h1>Bangkok Transport Cost Comparison</h1>
-      <div class="subtitle">Reachability by transport mode — click anywhere to set origin</div>
-    </div>
-    <nav class="header-nav">
-      <a href="index.html" class="nav-link">Cost Comparison</a>
-      <a href="isoline.html" class="nav-link active">Isolines</a>
-      <a href="planner.html" class="nav-link">Journey Planner</a>
+  <header class="app-header">
+    <a class="brand" href="planner.html">
+      <span class="brand-mark">฿</span>
+      <span><span class="brand-name">Bangkok Fares</span><br><span class="brand-sub">What it really costs to get around</span></span>
+    </a>
+    <nav class="nav">
+      <a href="planner.html">Trip planner</a>
+      <a href="isoline.html" class="active">Reach map</a>
+      <a href="index.html">Compare modes</a>
     </nav>
   </header>
 
-  <div class="isoline-map-panel">
-    <div id="isoline-map"></div>
-    <div id="isoline-loading" class="loading-overlay">Loading transport data...</div>
-
-    <div class="isoline-controls">
-      <div class="control-row">
-        <span class="control-label">Origin</span>
-        <span id="originLabel" style="font-size:0.8rem;color:#333;font-weight:600;">DMK Airport</span>
-        <button id="resetOrigin" class="mode-btn" style="font-size:0.7rem;padding:3px 10px;display:none;">Reset to DMK</button>
-        <span style="font-size:0.7rem;color:#999;margin-left:auto;">Click map to set origin</span>
-      </div>
-      <div class="control-row">
-        <span class="control-label">View</span>
-        <div class="view-toggle">
-          <button id="viewCost" class="active" data-view="cost">Cost (THB)</button>
-          <button id="viewTime" data-view="time">Time (min)</button>
+  <main class="app">
+    <aside class="panel">
+      <section class="section">
+        <h1 class="page-title">Reach map</h1>
+        <p class="page-lede">How much it costs — or how long it takes — to reach every part of Bangkok from one starting point.</p>
+        <div class="field" style="margin-top:14px">
+          <span class="pin o" aria-hidden="true"></span>
+          <input id="originInput" class="input" list="placeList" placeholder="Station, pier, or click the map" autocomplete="off" aria-label="Starting point">
         </div>
-      </div>
-      <div class="control-row">
-        <span class="control-label">Mode</span>
-        <div id="modeButtons"></div>
-      </div>
-      <div class="control-row">
-        <label class="transit-toggle">
-          <input type="checkbox" id="transitToggle">
-          <span>Show transit stops</span>
-        </label>
-      </div>
-      <div>
-        <div class="legend-bar" id="legendBar"></div>
+        <datalist id="placeList"></datalist>
+        <div class="chips" id="presets" style="margin-top:10px"></div>
+      </section>
+
+      <section class="section">
+        <div class="section-title">Show</div>
+        <div class="seg" id="measure">
+          <button data-m="cost" class="active">Cost (THB)</button>
+          <button data-m="time">Travel time</button>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-title">Travel by</div>
+        <div class="chips" id="modeChips"></div>
+        <div class="section-title" style="margin-top:14px">By road</div>
+        <div class="chips" id="roadChips"></div>
+      </section>
+
+      <section class="section">
+        <div class="section-title">Stations by band <span id="countNote" class="muted" style="text-transform:none;letter-spacing:0;font-weight:500"></span></div>
+        <div id="summary" class="rank"></div>
+      </section>
+
+      <section class="section">
+        <p class="note" id="method"></p>
+      </section>
+    </aside>
+
+    <div class="map-wrap">
+      <div id="map" class="map"></div>
+      <div class="map-hint" id="mapHint">Click anywhere to move the starting point</div>
+      <div class="busy hidden" id="busy">Computing…</div>
+      <div class="map-legend">
+        <div class="legend-title" id="legendTitle">Fare from starting point</div>
+        <div class="legend-scale" id="legendScale"></div>
         <div class="legend-labels" id="legendLabels"></div>
+        <div class="note" id="hover" style="margin-top:6px;min-height:18px"></div>
       </div>
+      <div class="loading" id="loading">Loading network…</div>
     </div>
-  </div>
+  </main>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="js/common.js"></script>
   <script src="js/graph.js"></script>
   <script src="js/isoline.js"></script>
 </body>

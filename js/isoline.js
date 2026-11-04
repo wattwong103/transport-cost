@@ -1,658 +1,331 @@
 // ============================================================
-// Isoline Map — From-Anywhere Reachability
-// Uses TransitGraph (graph.js) for client-side multimodal Dijkstra
+// Reach map — fare / travel-time surface from any starting point
 // ============================================================
-
 (function () {
   'use strict';
 
-  var DMK = [13.9133, 100.5957];
+  var esc = BKK.esc;
 
-  var COST_BANDS = [15, 25, 35, 50, 75, 100, 150, 200, 300];
-  var TIME_BANDS = [5, 10, 15, 20, 30, 45, 60, 90, 120];
+  var BOUNDS = { minLat: 13.48, maxLat: 14.08, minLng: 100.30, maxLng: 100.95 };
+  var STEP = 0.004;            // grid cell (~440 m)
+  var UPSAMPLE = 3;            // raster smoothing
+  var EGRESS_KM = 1.0;         // walk from the last stop to the cell
 
-  var COLORS = [
-    '#1a9850', '#66bd63', '#a6d96a', '#d9ef8b',
-    '#fee08b', '#fdae61', '#f46d43', '#d73027', '#a50026'
-  ];
-
-  var GRID_SIZE = 60;
-  var GRID_BOUNDS = {
-    minLat: 13.45, maxLat: 14.10,
-    minLng: 100.30, maxLng: 100.90
+  var BANDS = {
+    cost: [15, 20, 25, 30, 40, 50, 70, 100, 150],
+    time: [10, 15, 20, 30, 40, 50, 60, 90, 120],
   };
-  var MAX_WALK_KM = 2;
-  var WALK_SPEED_KMH = 5;
+  var COLORS = ['#0f7b5f', '#3a9c6e', '#7cbf80', '#bddc93', '#f3e79b', '#f7c46c', '#f0904c', '#dd5a3b', '#b3302e'];
 
-  var ROAD_CIRCUITY = [
-    { angle: 0,   factor: 1.25 },
-    { angle: 45,  factor: 1.35 },
-    { angle: 90,  factor: 1.15 },
-    { angle: 135, factor: 1.30 },
-    { angle: 180, factor: 1.10 },
-    { angle: 225, factor: 1.50 },
-    { angle: 270, factor: 1.50 },
-    { angle: 315, factor: 1.35 },
+  var PRESETS = [
+    ['Don Mueang Airport', 13.9133, 100.6040],
+    ['Suvarnabhumi Airport', 13.6900, 100.7501],
+    ['Siam', 13.7456, 100.5341],
+    ['Khao San Road', 13.7589, 100.4974],
+    ['Bang Kapi', 13.7660, 100.6440],
   ];
 
-  var transportModes = [];
-  var map = null;
-  var isolineLayer = null;
-  var stationLayer = null;
-  var transitLayer = null;
-  var selectedMode = null;
-  var viewType = 'cost';
-  var showTransitStops = false;
+  var TRANSIT = [
+    { id: 'all', label: 'All public transport', allow: null },
+    { id: 'rail', label: 'Rail only', allow: function (r) { return r.k === 'r'; } },
+    { id: 'bus', label: 'Bus only', allow: function (r) { return r.k === 'b'; } },
+    { id: 'boat', label: 'Boat only', allow: function (r) { return r.k === 'o'; } },
+  ];
+  var ROAD = ['taxi', 'grab_car', 'grab_bike', 'motorcycle', 'tuktuk'];
 
-  // Origin state
-  var origin = DMK.slice();
-  var originMarker = null;
-  var originName = 'DMK Airport';
+  var map, overlay = null, originMarker, stationLayer;
+  var modesById = {}, places = [], rail = null;
+  var origin = { lat: PRESETS[0][1], lng: PRESETS[0][2], name: PRESETS[0][0] };
+  var measure = 'cost', modeSel = 'all';
+  var grid = null, nx, ny;
 
-  // Graph-based Dijkstra results
-  var dijkstraResult = null;  // {dist, time, prev}
-  var motoDensity = null;
+  function init() {
+    nx = Math.round((BOUNDS.maxLng - BOUNDS.minLng) / STEP);
+    ny = Math.round((BOUNDS.maxLat - BOUNDS.minLat) / STEP);
+    map = BKK.createMap('map', { zoom: 11 });
+    map.on('click', function (e) { setOrigin(e.latlng.lat, e.latlng.lng, null); });
+    map.on('mousemove', hover);
+    map.on('mouseout', function () { document.getElementById('hover').textContent = ''; });
+    readHash();
+    bind();
 
-  // ============================================================
-  // Geo utilities
-  // ============================================================
-
-  function getCircuityFactor(fromLat, fromLng, toLat, toLng) {
-    var dy = toLat - fromLat;
-    var dx = toLng - fromLng;
-    var angle = Math.atan2(dy, dx) * 180 / Math.PI;
-    angle = ((angle % 360) + 360) % 360;
-    angle = (90 - angle + 360) % 360;
-
-    var n = ROAD_CIRCUITY.length;
-    for (var i = 0; i < n; i++) {
-      var a1 = ROAD_CIRCUITY[i].angle;
-      var a2 = ROAD_CIRCUITY[(i + 1) % n].angle;
-      var f1 = ROAD_CIRCUITY[i].factor;
-      var f2 = ROAD_CIRCUITY[(i + 1) % n].factor;
-      if (a2 <= a1) a2 += 360;
-      var checkAngle = angle;
-      if (checkAngle < a1) checkAngle += 360;
-      if (checkAngle >= a1 && checkAngle < a2) {
-        var t = (checkAngle - a1) / (a2 - a1);
-        return f1 + t * (f2 - f1);
-      }
-    }
-    return 1.3;
+    Promise.all([
+      BKK.getJSON('data/transport-modes.json'),
+      BKK.getJSON('data/rail-network.json'),
+      BKK.getJSON('data/rail-geometry.geojson'),
+      TransitGraph.load(),
+    ]).then(function (r) {
+      r[0].modes.forEach(function (m) { modesById[m.id] = m; });
+      var list = r[0].modes.slice();
+      list.push(Object.assign({}, modesById.bus_ac, { id: 'bus' }));
+      TransitGraph.setModes(list);
+      rail = r[1];
+      BKK.drawRail(map, rail, r[2], { weight: 2, opacity: 0.6, stations: false });
+      stationLayer = L.layerGroup().addTo(map);
+      buildPlaces();
+      renderChips();
+      document.getElementById('method').innerHTML =
+        'Public transport: best route on the rail, BMTA bus and boat network, paying a fare each time you board, ' +
+        'with up to 1 km of walking at each end. Road modes use straight-line distance × 1.35. Fares as of ' +
+        esc(r[0].updated) + ' (air-con bus fares). <a href="index.html">Fare tables</a>';
+      document.getElementById('loading').classList.add('hidden');
+      setOrigin(origin.lat, origin.lng, origin.name);
+    }).catch(function (err) {
+      console.error(err);
+      document.getElementById('loading').textContent = 'Could not load the network: ' + err.message;
+    });
   }
 
-  // ============================================================
-  // Origin management
-  // ============================================================
+  function buildPlaces() {
+    var seen = {};
+    PRESETS.forEach(function (p) { seen[p[0]] = 1; places.push({ label: p[0], name: p[0], lat: p[1], lng: p[2], th: '' }); });
+    Object.keys(rail.stations).forEach(function (code) {
+      var s = rail.stations[code];
+      if (seen[s.name]) return;
+      seen[s.name] = 1;
+      places.push({ label: s.name + ' (' + code + ')', name: s.name, th: s.nameTh, lat: s.lat, lng: s.lng });
+    });
+    document.getElementById('placeList').innerHTML = places.map(function (p) {
+      return '<option value="' + esc(p.label) + '">' + esc(p.th) + '</option>';
+    }).join('');
+  }
+
+  function bind() {
+    var input = document.getElementById('originInput');
+    input.addEventListener('change', function () {
+      var t = input.value.trim().toLowerCase();
+      var p = places.find(function (x) { return x.label.toLowerCase() === t || x.name.toLowerCase() === t; }) ||
+        places.find(function (x) { return x.label.toLowerCase().indexOf(t) >= 0 || (x.th && x.th.indexOf(input.value.trim()) >= 0); });
+      if (p) { setOrigin(p.lat, p.lng, p.name); map.panTo([p.lat, p.lng]); }
+    });
+    document.querySelectorAll('#measure button').forEach(function (b) {
+      b.addEventListener('click', function () {
+        document.querySelectorAll('#measure button').forEach(function (x) { x.classList.toggle('active', x === b); });
+        measure = b.dataset.m;
+        recompute();
+      });
+    });
+    document.getElementById('presets').innerHTML = PRESETS.map(function (p, i) {
+      return '<button class="chip" data-i="' + i + '">' + esc(p[0]) + '</button>';
+    }).join('');
+    document.querySelectorAll('#presets .chip').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var p = PRESETS[+b.dataset.i];
+        setOrigin(p[1], p[2], p[0]);
+        map.setView([p[1], p[2]], 11);
+      });
+    });
+  }
+
+  function renderChips() {
+    document.getElementById('modeChips').innerHTML = TRANSIT.map(function (t) {
+      return '<button class="chip' + (t.id === modeSel ? ' active' : '') + '" data-mode="' + t.id + '">' + esc(t.label) + '</button>';
+    }).join('');
+    document.getElementById('roadChips').innerHTML = ROAD.map(function (id) {
+      var m = modesById[id];
+      return '<button class="chip' + (id === modeSel ? ' active' : '') + '" data-mode="' + id + '"><span class="dot" style="background:' + m.color + '"></span>' + esc(m.name.replace(/ \(.*\)/, '')) + '</button>';
+    }).join('');
+    document.querySelectorAll('[data-mode]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        modeSel = b.dataset.mode;
+        document.querySelectorAll('[data-mode]').forEach(function (x) { x.classList.toggle('active', x === b); });
+        recompute();
+      });
+    });
+  }
 
   function setOrigin(lat, lng, name) {
-    origin = [lat, lng];
-    originName = name || (lat.toFixed(4) + ', ' + lng.toFixed(4));
-
-    var label = document.getElementById('originLabel');
-    var resetBtn = document.getElementById('resetOrigin');
-    if (label) label.textContent = originName;
-    if (resetBtn) {
-      resetBtn.style.display = (lat === DMK[0] && lng === DMK[1]) ? 'none' : 'inline-block';
-    }
-
-    if (originMarker) {
-      originMarker.setLatLng([lat, lng]);
-      originMarker.setPopupContent('<b>' + originName + '</b>');
-    }
-
-    recomputeFromOrigin();
-  }
-
-  function recomputeFromOrigin() {
-    if (!TransitGraph.getGraph()) return;
-
-    var loadingEl = document.getElementById('isoline-loading');
-    if (loadingEl) {
-      loadingEl.textContent = 'Computing reachability...';
-      loadingEl.classList.remove('hidden');
-    }
-
-    requestAnimationFrame(function () {
-      dijkstraResult = TransitGraph.dijkstraFromPoint(origin[0], origin[1], MAX_WALK_KM, 'distance');
-      drawIsolines();
-
-      if (loadingEl) loadingEl.classList.add('hidden');
-    });
-  }
-
-  // ============================================================
-  // Grid cost computation
-  // ============================================================
-
-  function findBestTransitNode(lat, lng) {
-    if (!dijkstraResult) return null;
-    var graph = TransitGraph.getGraph();
-    var nearby = TransitGraph.findNearbyNodes(lat, lng, MAX_WALK_KM);
-    var bestDist = Infinity;
-    var bestTime = Infinity;
-    var bestMode = null;
-    var bestLine = null;
-    var bestWalkKm = 0;
-
-    for (var i = 0; i < nearby.length; i++) {
-      var n = nearby[i];
-      var nodeDist = dijkstraResult.dist[n.idx];
-      if (nodeDist === Infinity) continue;
-      var total = nodeDist + n.km;
-      if (total < bestDist) {
-        bestDist = total;
-        bestTime = dijkstraResult.time[n.idx] + (n.km / WALK_SPEED_KMH) * 60;
-        bestMode = graph.nodes[n.idx][2];
-        bestLine = graph.nodes[n.idx][4] || null;
-        bestWalkKm = n.km;
-      }
-    }
-
-    if (bestDist === Infinity) return null;
-    return {
-      totalKm: bestDist,
-      totalTime: bestTime,
-      mode: bestMode,
-      line: bestLine,
-      walkKm: bestWalkKm,
-      transitKm: bestDist - bestWalkKm,
-    };
-  }
-
-  function computeGridCost(mode) {
-    var grid = [];
-    var latStep = (GRID_BOUNDS.maxLat - GRID_BOUNDS.minLat) / GRID_SIZE;
-    var lngStep = (GRID_BOUNDS.maxLng - GRID_BOUNDS.minLng) / GRID_SIZE;
-    var isRoad = mode.type === 'road';
-
-    for (var r = 0; r < GRID_SIZE; r++) {
-      grid[r] = [];
-      var lat = GRID_BOUNDS.minLat + (r + 0.5) * latStep;
-      for (var c = 0; c < GRID_SIZE; c++) {
-        var lng = GRID_BOUNDS.minLng + (c + 0.5) * lngStep;
-
-        if (isRoad) {
-          var straightKm = TransitGraph.haversineKm(origin[0], origin[1], lat, lng);
-          var circuity = getCircuityFactor(origin[0], origin[1], lat, lng);
-          if (motoDensity && motoDensity[r] && motoDensity[r][c] > 0) {
-            circuity *= (1 - 0.15 * motoDensity[r][c]);
-          }
-          var roadKm = straightKm * circuity;
-          if (viewType === 'cost') {
-            grid[r][c] = TransitGraph.calculateFare(mode, roadKm);
-          } else {
-            grid[r][c] = TransitGraph.calculateTime(mode, roadKm);
-          }
-        } else {
-          // Transit modes: use graph Dijkstra
-          var best = findBestTransitNodeForMode(lat, lng, mode);
-          if (best !== null) {
-            if (viewType === 'cost') {
-              grid[r][c] = best.fare;
-            } else {
-              grid[r][c] = best.time;
-            }
-          } else {
-            grid[r][c] = Infinity;
-          }
-        }
-      }
-    }
-    return grid;
-  }
-
-  function findBestTransitNodeForMode(lat, lng, mode) {
-    if (!dijkstraResult) return null;
-    var graph = TransitGraph.getGraph();
-    var nearby = TransitGraph.findNearbyNodes(lat, lng, MAX_WALK_KM);
-    var bestVal = Infinity;
-    var bestResult = null;
-
-    // Which node modes match this transport mode?
-    var modeFilter;
-    if (mode.type === 'rail') {
-      modeFilter = 'r';
-    } else if (mode.type === 'bus') {
-      modeFilter = 'b';
-    } else if (mode.type === 'boat') {
-      modeFilter = 'o';
+    origin = { lat: lat, lng: lng, name: name || (lat.toFixed(4) + ', ' + lng.toFixed(4)) };
+    document.getElementById('originInput').value = origin.name;
+    if (!originMarker) {
+      originMarker = L.marker([lat, lng], {
+        draggable: true, zIndexOffset: 1000,
+        icon: L.divIcon({ className: '', html: '<div class="map-pin o"></div>', iconSize: [18, 18], iconAnchor: [9, 9] }),
+      }).addTo(map);
+      originMarker.on('dragend', function () { var p = originMarker.getLatLng(); setOrigin(p.lat, p.lng, null); });
     } else {
-      return null;
+      originMarker.setLatLng([lat, lng]);
     }
-
-    for (var i = 0; i < nearby.length; i++) {
-      var n = nearby[i];
-      var nodeMode = graph.nodes[n.idx][2];
-      if (nodeMode !== modeFilter) continue;
-
-      var nodeDist = dijkstraResult.dist[n.idx];
-      if (nodeDist === Infinity) continue;
-
-      var transitKm = nodeDist;
-      var walkKm = n.km;
-      var walkTime = (walkKm / WALK_SPEED_KMH) * 60;
-      var transitTime = dijkstraResult.time[n.idx];
-
-      var fare, totalTime;
-      if (mode.type === 'rail') {
-        var nodeLine = graph.nodes[n.idx][4] || '';
-        var lineMode = TransitGraph.getModeForLine(nodeLine);
-        fare = TransitGraph.calculateFare(lineMode || mode, transitKm);
-        totalTime = transitTime + walkTime;
-      } else {
-        fare = TransitGraph.calculateFare(mode, transitKm);
-        totalTime = transitTime + walkTime;
-      }
-
-      var val = viewType === 'cost' ? fare : totalTime;
-      if (val < bestVal) {
-        bestVal = val;
-        bestResult = { fare: fare, time: totalTime, transitKm: transitKm, walkKm: walkKm };
-      }
-    }
-
-    return bestResult;
+    writeHash();
+    recompute();
   }
 
-  function computeMultiModalGrid() {
-    var grid = [];
-    var modeGrids = [];
-    for (var m = 0; m < transportModes.length; m++) {
-      modeGrids.push(computeGridCost(transportModes[m]));
-    }
-    for (var r = 0; r < GRID_SIZE; r++) {
-      grid[r] = [];
-      for (var c = 0; c < GRID_SIZE; c++) {
-        var best = Infinity;
-        for (var mg = 0; mg < modeGrids.length; mg++) {
-          if (modeGrids[mg][r][c] < best) {
-            best = modeGrids[mg][r][c];
-          }
-        }
-        grid[r][c] = best;
-      }
-    }
-    return grid;
+  // ---------------------------------------------------------------
+  function recompute() {
+    if (!TransitGraph.network()) return;
+    var busy = document.getElementById('busy');
+    busy.classList.remove('hidden');
+    updateLegend();
+    setTimeout(function () {
+      var t0 = performance.now();
+      grid = ROAD.indexOf(modeSel) >= 0 ? roadGrid(modesById[modeSel]) : transitGrid();
+      draw();
+      busy.classList.add('hidden');
+      console.log('reach grid ' + nx + 'x' + ny + ' in ' + Math.round(performance.now() - t0) + ' ms');
+    }, 20);
   }
 
-  // ============================================================
-  // Contour polygon extraction
-  // ============================================================
+  function cellCenter(i, j) {
+    return [BOUNDS.minLat + (j + 0.5) * STEP, BOUNDS.minLng + (i + 0.5) * STEP];
+  }
 
-  function extractContourPolygons(grid, threshold) {
-    var latStep = (GRID_BOUNDS.maxLat - GRID_BOUNDS.minLat) / GRID_SIZE;
-    var lngStep = (GRID_BOUNDS.maxLng - GRID_BOUNDS.minLng) / GRID_SIZE;
+  function roadGrid(mode) {
+    var g = new Float32Array(nx * ny);
+    for (var j = 0; j < ny; j++) {
+      for (var i = 0; i < nx; i++) {
+        var c = cellCenter(i, j);
+        var t = TransitGraph.roadTrip(mode, origin.lat, origin.lng, c[0], c[1]);
+        g[j * nx + i] = measure === 'cost' ? t.fare : t.minutes;
+      }
+    }
+    return { values: g, stops: null };
+  }
 
-    var cells = [];
-    for (var r = 0; r < GRID_SIZE; r++) {
-      for (var c = 0; c < GRID_SIZE; c++) {
-        if (grid[r][c] <= threshold) {
-          cells.push([r, c]);
+  function transitGrid() {
+    var sel = TRANSIT.find(function (t) { return t.id === modeSel; });
+    var isCost = measure === 'cost';
+    var reach = TransitGraph.reachFrom(origin.lat, origin.lng, isCost ? 'cheapest' : 'fastest', sel.allow, 240);
+    var net = TransitGraph.network();
+    var g = new Float32Array(nx * ny).fill(Infinity);
+    var walkMin = TransitGraph.walkMin;
+
+    function splat(lat, lng, base, maxKm) {
+      var rad = Math.ceil(maxKm / (STEP * 105)) + 1;
+      var ci = Math.floor((lng - BOUNDS.minLng) / STEP), cj = Math.floor((lat - BOUNDS.minLat) / STEP);
+      for (var dj = -rad; dj <= rad; dj++) {
+        var j = cj + dj;
+        if (j < 0 || j >= ny) continue;
+        for (var di = -rad; di <= rad; di++) {
+          var i = ci + di;
+          if (i < 0 || i >= nx) continue;
+          var c = cellCenter(i, j);
+          var d = TransitGraph.haversineKm(lat, lng, c[0], c[1]);
+          if (d > maxKm) continue;
+          var v = isCost ? base : base + walkMin(d);
+          var k = j * nx + i;
+          if (v < g[k]) g[k] = v;
         }
       }
     }
-
-    if (cells.length === 0) return null;
-
-    var cellSet = {};
-    for (var i = 0; i < cells.length; i++) {
-      cellSet[cells[i][0] + ',' + cells[i][1]] = true;
+    splat(origin.lat, origin.lng, 0, 1.5);          // walking from the origin itself
+    var vals = isCost ? reach.fare : reach.time;
+    for (var s = 0; s < net.stops.length; s++) {
+      if (isFinite(vals[s])) splat(net.stops[s][0], net.stops[s][1], vals[s], EGRESS_KM);
     }
-
-    var edges = [];
-    for (var j = 0; j < cells.length; j++) {
-      var cr = cells[j][0], cc = cells[j][1];
-      var lat0 = GRID_BOUNDS.minLat + cr * latStep;
-      var lat1 = lat0 + latStep;
-      var lng0 = GRID_BOUNDS.minLng + cc * lngStep;
-      var lng1 = lng0 + lngStep;
-
-      if (!cellSet[(cr - 1) + ',' + cc]) edges.push([[lat0, lng0], [lat0, lng1]]);
-      if (!cellSet[(cr + 1) + ',' + cc]) edges.push([[lat1, lng0], [lat1, lng1]]);
-      if (!cellSet[cr + ',' + (cc - 1)]) edges.push([[lat0, lng0], [lat1, lng0]]);
-      if (!cellSet[cr + ',' + (cc + 1)]) edges.push([[lat0, lng1], [lat1, lng1]]);
-    }
-
-    if (edges.length === 0) return null;
-    return chainEdges(edges);
+    return { values: g, stops: vals };
   }
 
-  function chainEdges(edges) {
-    if (edges.length === 0) return [];
-    var adj = {};
-    var ptKey = function(p) { return p[0].toFixed(5) + ',' + p[1].toFixed(5); };
-
-    for (var i = 0; i < edges.length; i++) {
-      var k1 = ptKey(edges[i][0]), k2 = ptKey(edges[i][1]);
-      if (!adj[k1]) adj[k1] = [];
-      if (!adj[k2]) adj[k2] = [];
-      adj[k1].push({ pt: edges[i][1], key: k2 });
-      adj[k2].push({ pt: edges[i][0], key: k1 });
-    }
-
-    var visited = {};
-    var start = ptKey(edges[0][0]);
-    var current = start;
-    var polygon = [edges[0][0]];
-    visited[start] = true;
-
-    for (var step = 0; step < edges.length * 2; step++) {
-      var neighbors = adj[current];
-      if (!neighbors) break;
-      var found = false;
-      for (var n = 0; n < neighbors.length; n++) {
-        if (!visited[neighbors[n].key]) {
-          visited[neighbors[n].key] = true;
-          polygon.push(neighbors[n].pt);
-          current = neighbors[n].key;
-          found = true;
-          break;
-        }
-      }
-      if (!found) break;
-    }
-    return polygon;
+  // ---------------------------------------------------------------
+  function bandOf(v) {
+    var b = BANDS[measure];
+    for (var i = 0; i < b.length; i++) if (v <= b[i]) return i;
+    return -1;
   }
 
-  // ============================================================
-  // Visualization
-  // ============================================================
-
-  function drawIsolines() {
-    if (!isolineLayer || !selectedMode) return;
-    isolineLayer.clearLayers();
-    if (stationLayer) stationLayer.clearLayers();
-    if (transitLayer) transitLayer.clearLayers();
-
-    var isMultiModal = selectedMode.id === 'multimodal';
-    var grid = isMultiModal ? computeMultiModalGrid() : computeGridCost(selectedMode);
-    var bands = viewType === 'cost' ? COST_BANDS : TIME_BANDS;
-
-    for (var i = bands.length - 1; i >= 0; i--) {
-      var polygon = extractContourPolygons(grid, bands[i]);
-      if (polygon && polygon.length > 2) {
-        var poly = L.polygon(polygon, {
-          color: COLORS[i],
-          fillColor: COLORS[i],
-          fillOpacity: 0.25,
-          weight: 1.5,
-          opacity: 0.7
-        });
-        var label = viewType === 'cost' ? bands[i] + ' THB' : bands[i] + ' min';
-        poly.bindTooltip(label, { sticky: true });
-        poly.addTo(isolineLayer);
+  // bilinear sample in grid coordinates (cell centres at integer + 0.5)
+  function sample(fx, fy) {
+    var x = fx - 0.5, y = fy - 0.5;
+    var x0 = Math.floor(x), y0 = Math.floor(y), tx = x - x0, ty = y - y0;
+    var vals = grid.values, acc = 0, w = 0, nearest = Infinity, nd = 9;
+    for (var dy = 0; dy <= 1; dy++) {
+      for (var dx = 0; dx <= 1; dx++) {
+        var i = x0 + dx, j = y0 + dy;
+        if (i < 0 || j < 0 || i >= nx || j >= ny) continue;
+        var v = vals[j * nx + i];
+        var ww = (dx ? tx : 1 - tx) * (dy ? ty : 1 - ty);
+        var dd = Math.abs(dx - tx) + Math.abs(dy - ty);
+        if (dd < nd) { nd = dd; nearest = v; }
+        if (isFinite(v)) { acc += v * ww; w += ww; }
       }
     }
-
-    // Show reachable rail stations
-    if ((selectedMode.type === 'rail' || isMultiModal) && dijkstraResult) {
-      drawReachableStations(bands);
-    }
-
-    // Show transit stops overlay
-    if (showTransitStops && dijkstraResult) {
-      if (selectedMode.type === 'bus' || isMultiModal) {
-        drawTransitNodes('b', bands, 2, '#2196F3');
-      }
-      if (selectedMode.type === 'boat' || isMultiModal) {
-        drawTransitNodes('o', bands, 3, '#00897B');
-      }
-    }
+    if (!isFinite(nearest)) return Infinity;
+    return w > 0.5 ? acc / w : nearest;
   }
 
-  function drawReachableStations(bands) {
-    if (!stationLayer || !dijkstraResult) return;
-    var graph = TransitGraph.getGraph();
-    var maxBand = bands[bands.length - 1];
-
-    for (var idx = 0; idx < graph.nodes.length; idx++) {
-      var n = graph.nodes[idx];
-      if (n[2] !== 'r') continue;  // only rail
-      if (dijkstraResult.dist[idx] === Infinity) continue;
-
-      var railKm = dijkstraResult.dist[idx];
-      var nodeLine = n[4] || '';
-      var lineMode = TransitGraph.getModeForLine(nodeLine);
-
-      var value;
-      if (viewType === 'cost') {
-        value = TransitGraph.calculateFare(lineMode || selectedMode, railKm);
-      } else {
-        value = dijkstraResult.time[idx];
+  function draw() {
+    var W = nx * UPSAMPLE, H = ny * UPSAMPLE;
+    var canvas = document.createElement('canvas');
+    canvas.width = W; canvas.height = H;
+    var ctx = canvas.getContext('2d');
+    var img = ctx.createImageData(W, H);
+    var rgb = COLORS.map(function (c) { return [parseInt(c.slice(1, 3), 16), parseInt(c.slice(3, 5), 16), parseInt(c.slice(5, 7), 16)]; });
+    for (var py = 0; py < H; py++) {
+      var fy = (H - py - 0.5) / UPSAMPLE;      // canvas row 0 = north edge
+      for (var px = 0; px < W; px++) {
+        var v = sample((px + 0.5) / UPSAMPLE, fy);
+        var b = isFinite(v) ? bandOf(v) : -1;
+        if (b < 0) continue;
+        var o = (py * W + px) * 4;
+        img.data[o] = rgb[b][0]; img.data[o + 1] = rgb[b][1]; img.data[o + 2] = rgb[b][2]; img.data[o + 3] = 125;
       }
-      if (value > maxBand) continue;
-
-      var colorIdx = 0;
-      for (var b = 0; b < bands.length; b++) {
-        if (value <= bands[b]) { colorIdx = b; break; }
-      }
-
-      var marker = L.circleMarker([n[0], n[1]], {
-        radius: 4,
-        fillColor: COLORS[colorIdx],
-        color: '#333',
-        weight: 1,
-        fillOpacity: 0.9
-      });
-
-      var lbl = viewType === 'cost'
-        ? Math.round(value) + ' THB'
-        : Math.round(value) + ' min';
-      marker.bindPopup('<b>' + (n[3] || 'Station') + '</b><br>' +
-        'Line: ' + nodeLine + '<br>' +
-        'From origin: ' + railKm.toFixed(1) + ' km | ' + lbl);
-      marker.addTo(stationLayer);
     }
+    ctx.putImageData(img, 0, 0);
+    var url = canvas.toDataURL();
+    var bounds = [[BOUNDS.minLat, BOUNDS.minLng], [BOUNDS.minLat + ny * STEP, BOUNDS.minLng + nx * STEP]];
+    if (overlay) overlay.setUrl(url);
+    else overlay = L.imageOverlay(url, bounds, { opacity: 1, interactive: false }).addTo(map);
+    drawStations();
   }
 
-  function drawTransitNodes(modeChar, bands, radius, color) {
-    if (!transitLayer || !dijkstraResult) return;
-    var graph = TransitGraph.getGraph();
-    var maxBand = bands[bands.length - 1];
-
-    for (var idx = 0; idx < graph.nodes.length; idx++) {
-      var n = graph.nodes[idx];
-      if (n[2] !== modeChar) continue;
-      if (dijkstraResult.dist[idx] === Infinity) continue;
-
-      var km = dijkstraResult.dist[idx];
-      var value;
-      if (viewType === 'cost') {
-        value = km * 3;
-      } else {
-        value = dijkstraResult.time[idx];
-      }
-      if (value > maxBand) continue;
-
-      var colorIdx = 0;
-      for (var b = 0; b < bands.length; b++) {
-        if (value <= bands[b]) { colorIdx = b; break; }
-      }
-
-      var marker = L.circleMarker([n[0], n[1]], {
-        radius: radius,
-        fillColor: color,
-        color: '#333',
-        weight: 0.5,
-        fillOpacity: 0.7
-      });
-      var lbl = viewType === 'cost' ? Math.round(value) + ' THB' : Math.round(value) + ' min';
-      marker.bindPopup('Transit stop<br>From origin: ' + km.toFixed(1) + ' km | ' + lbl);
-      marker.addTo(transitLayer);
-    }
-  }
-
-  // ============================================================
-  // Data Loading
-  // ============================================================
-
-  async function loadData() {
-    try {
-      var modesResp = await fetch('data/transport-modes.json');
-      var modesData = await modesResp.json();
-      transportModes = modesData.modes;
-
-      TransitGraph.setTransportModes(transportModes);
-
-      await TransitGraph.loadGraph();
-      var graphData = TransitGraph.getGraph();
-      motoDensity = graphData.motoDensity || null;
-
-      dijkstraResult = TransitGraph.dijkstraFromPoint(origin[0], origin[1], MAX_WALK_KM, 'distance');
-
-      document.getElementById('isoline-loading').classList.add('hidden');
-      initMap();
-      renderModeButtons();
-      selectedMode = transportModes[0];
-      setActiveMode(selectedMode.id);
-      drawIsolines();
-      updateLegend();
-    } catch (err) {
-      console.error('Failed to load data:', err);
-      document.getElementById('isoline-loading').textContent = 'Failed to load data. ' + err.message;
-    }
-  }
-
-  // ============================================================
-  // Map
-  // ============================================================
-
-  function initMap() {
-    map = L.map('isoline-map', {
-      center: origin,
-      zoom: 11,
-      zoomControl: true
+  function drawStations() {
+    stationLayer.clearLayers();
+    var net = TransitGraph.network();
+    var unit = measure === 'cost' ? 'THB' : 'min';
+    var rows = [];
+    Object.keys(net.codes).forEach(function (idx) {
+      var code = net.codes[idx], s = rail.stations[code];
+      var v = grid.stops ? grid.stops[idx] : sample((s.lng - BOUNDS.minLng) / STEP, (s.lat - BOUNDS.minLat) / STEP);
+      var b = isFinite(v) ? bandOf(v) : -1;
+      L.circleMarker([s.lat, s.lng], {
+        radius: 3.5, weight: 1.5, color: '#fff',
+        fillColor: b >= 0 ? COLORS[b] : '#9aa1ad', fillOpacity: 1,
+      }).bindTooltip('<b>' + esc(s.name) + '</b> ' + code + '<br>' +
+        (isFinite(v) ? Math.round(v) + ' ' + unit : 'not reachable'), { direction: 'top' })
+        .addTo(stationLayer);
+      if (isFinite(v)) rows.push({ name: s.name, v: v });
     });
-
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap contributors',
-      maxZoom: 18
-    }).addTo(map);
-
-    originMarker = L.marker(origin, { draggable: true }).addTo(map);
-    originMarker.bindPopup('<b>' + originName + '</b>').openPopup();
-
-    originMarker.on('dragend', function () {
-      var pos = originMarker.getLatLng();
-      setOrigin(pos.lat, pos.lng, null);
+    rows.sort(function (a, b) { return a.v - b.v; });
+    var seen = {};
+    var uniq = rows.filter(function (r) { if (seen[r.name]) return false; seen[r.name] = 1; return true; });
+    var total = {};
+    Object.keys(rail.stations).forEach(function (c) { total[rail.stations[c].name] = 1; });
+    document.getElementById('countNote').textContent = uniq.length + ' of ' + Object.keys(total).length + ' stations reachable';
+    var bands = BANDS[measure], groups = [];
+    bands.forEach(function (lim, i) {
+      var inBand = uniq.filter(function (r) { return r.v <= lim && (i === 0 || r.v > bands[i - 1]); });
+      if (inBand.length) groups.push({ band: i, lim: lim, n: inBand.length, ex: inBand.slice(0, 3) });
     });
-
-    map.on('click', function (e) {
-      setOrigin(e.latlng.lat, e.latlng.lng, null);
-    });
-
-    isolineLayer = L.layerGroup().addTo(map);
-    stationLayer = L.layerGroup().addTo(map);
-    transitLayer = L.layerGroup().addTo(map);
-  }
-
-  // ============================================================
-  // Controls
-  // ============================================================
-
-  function renderModeButtons() {
-    var container = document.getElementById('modeButtons');
-    container.innerHTML = '';
-
-    for (var i = 0; i < transportModes.length; i++) {
-      var mode = transportModes[i];
-      var btn = document.createElement('button');
-      btn.className = 'mode-btn';
-      btn.style.setProperty('--btn-color', mode.color);
-      btn.textContent = mode.name;
-      btn.dataset.modeId = mode.id;
-      btn.addEventListener('click', function(e) {
-        var modeId = e.target.dataset.modeId;
-        var m = transportModes.find(function(x) { return x.id === modeId; });
-        if (m) {
-          selectedMode = m;
-          setActiveMode(modeId);
-          drawIsolines();
-          updateLegend();
-        }
-      });
-      container.appendChild(btn);
-    }
-
-    var mmBtn = document.createElement('button');
-    mmBtn.className = 'mode-btn';
-    mmBtn.style.setProperty('--btn-color', '#FF6F00');
-    mmBtn.textContent = 'Multi-modal';
-    mmBtn.dataset.modeId = 'multimodal';
-    mmBtn.addEventListener('click', function() {
-      selectedMode = { id: 'multimodal', name: 'Multi-modal (Optimal)' };
-      setActiveMode('multimodal');
-      drawIsolines();
-      updateLegend();
-    });
-    container.appendChild(mmBtn);
-  }
-
-  function setActiveMode(modeId) {
-    document.querySelectorAll('.mode-btn').forEach(function(btn) {
-      btn.classList.toggle('active', btn.dataset.modeId === modeId);
-    });
+    document.getElementById('summary').innerHTML = groups.map(function (g) {
+      return '<div class="rank-row" style="cursor:default"><div class="rank-name"><span class="dot" style="background:' + COLORS[g.band] + '"></span>' +
+        '<span>' + g.ex.map(function (e) { return esc(e.name); }).join(', ') + (g.n > 3 ? ' +' + (g.n - 3) + ' more' : '') + '</span></div>' +
+        '<div class="rank-val num">≤ ' + g.lim + '<small>' + unit + '</small></div></div>';
+    }).join('') || '<div class="empty">No stations reachable with this mode from here.</div>';
   }
 
   function updateLegend() {
-    var bands = viewType === 'cost' ? COST_BANDS : TIME_BANDS;
-    var unit = viewType === 'cost' ? ' THB' : ' min';
-
-    var barEl = document.getElementById('legendBar');
-    var labelsEl = document.getElementById('legendLabels');
-    barEl.innerHTML = '';
-    labelsEl.innerHTML = '';
-
-    for (var i = 0; i < COLORS.length; i++) {
-      var swatch = document.createElement('div');
-      swatch.className = 'legend-swatch';
-      swatch.style.background = COLORS[i];
-      barEl.appendChild(swatch);
-    }
-
-    for (var j = 0; j < bands.length; j++) {
-      var label = document.createElement('span');
-      label.textContent = bands[j] + unit;
-      labelsEl.appendChild(label);
-    }
+    var sel = TRANSIT.find(function (t) { return t.id === modeSel; });
+    var name = sel ? sel.label.toLowerCase() : modesById[modeSel].name;
+    document.getElementById('legendTitle').textContent =
+      (measure === 'cost' ? 'Fare (THB)' : 'Door-to-door minutes') + ' — ' + name;
+    document.getElementById('legendScale').innerHTML = COLORS.map(function (c) { return '<span style="background:' + c + '"></span>'; }).join('');
+    document.getElementById('legendLabels').innerHTML = BANDS[measure].map(function (b) { return '<span>' + b + '</span>'; }).join('');
   }
 
-  function setupControls() {
-    document.querySelectorAll('.view-toggle button').forEach(function(btn) {
-      btn.addEventListener('click', function() {
-        document.querySelectorAll('.view-toggle button').forEach(function(b) {
-          b.classList.remove('active');
-        });
-        btn.classList.add('active');
-        viewType = btn.dataset.view;
-        drawIsolines();
-        updateLegend();
-      });
-    });
-
-    var transitToggle = document.getElementById('transitToggle');
-    if (transitToggle) {
-      transitToggle.addEventListener('change', function() {
-        showTransitStops = transitToggle.checked;
-        drawIsolines();
-      });
-    }
-
-    var resetBtn = document.getElementById('resetOrigin');
-    if (resetBtn) {
-      resetBtn.addEventListener('click', function () {
-        setOrigin(DMK[0], DMK[1], 'DMK Airport');
-        if (map) map.setView(DMK, 11);
-      });
-    }
+  function hover(e) {
+    if (!grid) return;
+    var v = sample((e.latlng.lng - BOUNDS.minLng) / STEP, (e.latlng.lat - BOUNDS.minLat) / STEP);
+    document.getElementById('hover').textContent = isFinite(v)
+      ? 'Under cursor: ≈ ' + Math.round(v) + (measure === 'cost' ? ' THB' : ' min')
+      : 'Under cursor: not reachable';
   }
 
-  // ============================================================
-  // Init
-  // ============================================================
+  function writeHash() {
+    history.replaceState(null, '', '#o=' + origin.lat.toFixed(5) + ',' + origin.lng.toFixed(5) + ',' + encodeURIComponent(origin.name));
+  }
+  function readHash() {
+    var m = location.hash.match(/o=(-?[\d.]+),(-?[\d.]+)(?:,([^&]*))?/);
+    if (m) origin = { lat: +m[1], lng: +m[2], name: m[3] ? decodeURIComponent(m[3]) : (m[1] + ', ' + m[2]) };
+  }
 
-  setupControls();
-  loadData();
-
+  init();
 })();

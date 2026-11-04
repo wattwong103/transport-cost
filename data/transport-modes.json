@@ -1,343 +1,982 @@
 {
+  "updated": "2026-11-04",
+  "currency": "THB",
+  "notes": [
+    "Adult single-journey fares. Discounts for students, seniors and children are not modelled.",
+    "The government 20-baht flat fare is not in force: the all-line phase was cancelled by Cabinet on 23 Jun 2026.",
+    "Red and Purple lines: a 40 THB/day cap applies to EMV contactless cards from 1 Dec 2025 to 30 Nov 2026 (not modelled per trip).",
+    "From 1 Jan 2027 Thai nationals registered in the Pao Tang app will pay at most 45 THB per rail journey across lines; foreigners pay normal fares.",
+    "Values marked \"estimate\" could not be confirmed from a 2025-2026 source."
+  ],
   "modes": [
     {
       "id": "bts",
+      "type": "rail",
       "name": "BTS Skytrain",
       "nameTh": "รถไฟฟ้าบีทีเอส",
-      "type": "rail",
-      "color": "#8BC34A",
-      "baseFare": 17,
-      "fareFormula": "distance-based",
-      "fareTable": [
-        { "maxKm": 2, "fare": 17 },
-        { "maxKm": 4, "fare": 20 },
-        { "maxKm": 6, "fare": 24 },
-        { "maxKm": 8, "fare": 28 },
-        { "maxKm": 10, "fare": 32 },
-        { "maxKm": 14, "fare": 37 },
-        { "maxKm": 18, "fare": 42 },
-        { "maxKm": 22, "fare": 48 },
-        { "maxKm": 26, "fare": 55 },
-        { "maxKm": 30, "fare": 62 },
-        { "maxKm": 99, "fare": 65 }
-      ],
-      "avgSpeedKmh": 35,
-      "operatingHours": "06:00-00:00",
-      "description": "Elevated rapid transit system covering Sukhumvit and Silom lines"
+      "color": "#7CB342",
+      "fare": {
+        "kind": "stations",
+        "table": [
+          {
+            "upTo": 1,
+            "fare": 17
+          },
+          {
+            "upTo": 2,
+            "fare": 25
+          },
+          {
+            "upTo": 3,
+            "fare": 28
+          },
+          {
+            "upTo": 4,
+            "fare": 32
+          },
+          {
+            "upTo": 5,
+            "fare": 35
+          },
+          {
+            "upTo": 6,
+            "fare": 40
+          },
+          {
+            "upTo": 7,
+            "fare": 43
+          },
+          {
+            "upTo": 8,
+            "fare": 47
+          },
+          {
+            "upTo": 11,
+            "fare": 52
+          },
+          {
+            "upTo": 14,
+            "fare": 57
+          },
+          {
+            "upTo": 17,
+            "fare": 62
+          },
+          {
+            "upTo": 999,
+            "fare": 65
+          }
+        ]
+      },
+      "speedKmh": 40,
+      "waitMin": 3,
+      "hours": "05:15–00:00",
+      "description": "Sukhumvit and Silom lines. Core section 17–47 THB, extensions 17–45 THB, at most 65 THB for a trip that uses both.",
+      "accuracy": "17, 47 and the 65 cap are confirmed; intermediate steps are estimates.",
+      "sources": [
+        {
+          "label": "Thai PBS — BTS core fares 17–47 THB",
+          "url": "https://www.thaipbs.or.th/news/content/322097",
+          "date": "2022-11-30"
+        },
+        {
+          "label": "Nation Thailand — extension fares, 65 THB cap",
+          "url": "https://www.nationthailand.com/news/general/40057608",
+          "date": "2025-11-01"
+        }
+      ]
     },
     {
       "id": "mrt_blue",
-      "name": "MRT Blue Line",
-      "nameTh": "รถไฟฟ้าMRT สายสีน้ำเงิน",
       "type": "rail",
-      "color": "#1565C0",
-      "baseFare": 17,
-      "fareFormula": "distance-based",
-      "fareTable": [
-        { "maxKm": 2, "fare": 17 },
-        { "maxKm": 4, "fare": 19 },
-        { "maxKm": 6, "fare": 22 },
-        { "maxKm": 8, "fare": 25 },
-        { "maxKm": 10, "fare": 28 },
-        { "maxKm": 14, "fare": 31 },
-        { "maxKm": 18, "fare": 35 },
-        { "maxKm": 22, "fare": 38 },
-        { "maxKm": 26, "fare": 42 },
-        { "maxKm": 30, "fare": 45 },
-        { "maxKm": 99, "fare": 45 }
-      ],
-      "avgSpeedKmh": 35,
-      "operatingHours": "06:00-00:00",
-      "description": "Underground/elevated metro forming a loop through central Bangkok"
+      "name": "MRT Blue Line",
+      "nameTh": "รถไฟฟ้า MRT สายสีน้ำเงิน",
+      "color": "#1E4FA0",
+      "fare": {
+        "kind": "stations",
+        "table": [
+          {
+            "upTo": 1,
+            "fare": 17
+          },
+          {
+            "upTo": 2,
+            "fare": 20
+          },
+          {
+            "upTo": 3,
+            "fare": 22
+          },
+          {
+            "upTo": 4,
+            "fare": 25
+          },
+          {
+            "upTo": 5,
+            "fare": 27
+          },
+          {
+            "upTo": 6,
+            "fare": 29
+          },
+          {
+            "upTo": 7,
+            "fare": 32
+          },
+          {
+            "upTo": 8,
+            "fare": 34
+          },
+          {
+            "upTo": 9,
+            "fare": 37
+          },
+          {
+            "upTo": 10,
+            "fare": 39
+          },
+          {
+            "upTo": 11,
+            "fare": 42
+          },
+          {
+            "upTo": 999,
+            "fare": 44
+          }
+        ]
+      },
+      "transferDiscount": {
+        "with": [
+          "mrt_purple"
+        ],
+        "amount": 14,
+        "note": "Entry fee charged once when changing between MRT Blue and Purple"
+      },
+      "speedKmh": 40,
+      "waitMin": 3,
+      "hours": "06:00–00:00",
+      "description": "Underground and elevated loop line. 17–44 THB by number of stations (table effective 3 Jul 2026 – 2 Jul 2028).",
+      "sources": [
+        {
+          "label": "Thai PBS — new MRT Blue fare table",
+          "url": "https://www.thaipbs.or.th/news/content/506400",
+          "date": "2026-05-26"
+        }
+      ]
     },
     {
       "id": "mrt_purple",
+      "type": "rail",
       "name": "MRT Purple Line",
-      "nameTh": "รถไฟฟ้าMRT สายสีม่วง",
-      "type": "rail",
-      "color": "#7B1FA2",
-      "baseFare": 14,
-      "fareFormula": "distance-based",
-      "fareTable": [
-        { "maxKm": 2, "fare": 14 },
-        { "maxKm": 4, "fare": 17 },
-        { "maxKm": 6, "fare": 20 },
-        { "maxKm": 8, "fare": 23 },
-        { "maxKm": 10, "fare": 26 },
-        { "maxKm": 14, "fare": 30 },
-        { "maxKm": 18, "fare": 34 },
-        { "maxKm": 22, "fare": 38 },
-        { "maxKm": 26, "fare": 42 },
-        { "maxKm": 30, "fare": 42 },
-        { "maxKm": 99, "fare": 42 }
-      ],
-      "avgSpeedKmh": 35,
-      "operatingHours": "06:00-00:00",
-      "description": "Connects Nonthaburi to central Bangkok via Tao Poon"
-    },
-    {
-      "id": "arl",
-      "name": "Airport Rail Link",
-      "nameTh": "แอร์พอร์ตเรลลิงก์",
-      "type": "rail",
-      "color": "#D32F2F",
-      "baseFare": 15,
-      "fareFormula": "distance-based",
-      "fareTable": [
-        { "maxKm": 4, "fare": 15 },
-        { "maxKm": 8, "fare": 20 },
-        { "maxKm": 12, "fare": 25 },
-        { "maxKm": 16, "fare": 30 },
-        { "maxKm": 20, "fare": 35 },
-        { "maxKm": 24, "fare": 40 },
-        { "maxKm": 30, "fare": 45 },
-        { "maxKm": 99, "fare": 45 }
-      ],
-      "avgSpeedKmh": 40,
-      "operatingHours": "05:30-00:00",
-      "description": "Connects Suvarnabhumi Airport to Phaya Thai via 8 stations"
-    },
-    {
-      "id": "bus_nonac",
-      "name": "Bus (Non-AC)",
-      "nameTh": "รถเมล์ธรรมดา",
-      "type": "bus",
-      "color": "#FF9800",
-      "baseFare": 8,
-      "fareFormula": "flat",
-      "fareTable": [
-        { "maxKm": 99, "fare": 8 }
-      ],
-      "avgSpeedKmh": 12,
-      "operatingHours": "05:00-23:00",
-      "description": "BMTA non-air-conditioned buses, flat fare regardless of distance"
-    },
-    {
-      "id": "bus_ac",
-      "name": "Bus (AC)",
-      "nameTh": "รถเมล์ปรับอากาศ",
-      "type": "bus",
-      "color": "#FF5722",
-      "baseFare": 13,
-      "fareFormula": "distance-based",
-      "fareTable": [
-        { "maxKm": 4, "fare": 13 },
-        { "maxKm": 8, "fare": 15 },
-        { "maxKm": 12, "fare": 17 },
-        { "maxKm": 16, "fare": 19 },
-        { "maxKm": 20, "fare": 21 },
-        { "maxKm": 24, "fare": 23 },
-        { "maxKm": 30, "fare": 26 },
-        { "maxKm": 99, "fare": 26 }
-      ],
-      "avgSpeedKmh": 12,
-      "operatingHours": "05:00-23:00",
-      "description": "BMTA air-conditioned buses, distance-based fare"
-    },
-    {
-      "id": "chao_phraya",
-      "name": "Chao Phraya Express Boat",
-      "nameTh": "เรือด่วนเจ้าพระยา",
-      "type": "boat",
-      "color": "#00BCD4",
-      "baseFare": 19,
-      "fareFormula": "flat",
-      "fareTable": [
-        { "maxKm": 99, "fare": 19 }
-      ],
-      "avgSpeedKmh": 15,
-      "operatingHours": "06:00-19:30",
-      "description": "Express boat service along the Chao Phraya River (orange flag, most common)"
-    },
-    {
-      "id": "khlong",
-      "name": "Khlong Saen Saep Boat",
-      "nameTh": "เรือคลองแสนแสบ",
-      "type": "boat",
-      "color": "#009688",
-      "baseFare": 16,
-      "fareFormula": "distance-based",
-      "fareTable": [
-        { "maxKm": 4, "fare": 16 },
-        { "maxKm": 8, "fare": 19 },
-        { "maxKm": 12, "fare": 22 },
-        { "maxKm": 16, "fare": 24 },
-        { "maxKm": 20, "fare": 26 },
-        { "maxKm": 30, "fare": 26 },
-        { "maxKm": 99, "fare": 26 }
-      ],
-      "avgSpeedKmh": 15,
-      "operatingHours": "05:30-20:30",
-      "description": "Canal boat service connecting east and west Bangkok"
-    },
-    {
-      "id": "taxi",
-      "name": "Taxi (Metered)",
-      "nameTh": "แท็กซี่",
-      "type": "road",
-      "color": "#E91E63",
-      "baseFare": 35,
-      "fareFormula": "metered",
-      "perKmRate": [
-        { "maxKm": 2, "rate": 0 },
-        { "maxKm": 10, "rate": 6.5 },
-        { "maxKm": 20, "rate": 5.5 },
-        { "maxKm": 99, "rate": 5.5 }
-      ],
-      "avgSpeedKmh": 11,
-      "operatingHours": "24 hours",
-      "description": "Metered taxis, flag fall 35 THB for first 2 km"
-    },
-    {
-      "id": "motorcycle",
-      "name": "Motorcycle Taxi",
-      "nameTh": "มอเตอร์ไซค์รับจ้าง",
-      "type": "road",
-      "color": "#795548",
-      "baseFare": 25,
-      "fareFormula": "per-km",
-      "perKmRate": [
-        { "maxKm": 2, "rate": 0 },
-        { "maxKm": 99, "rate": 7 }
-      ],
-      "avgSpeedKmh": 20,
-      "operatingHours": "06:00-22:00",
-      "description": "Motorbike taxis identified by orange vests, fastest in traffic"
-    },
-    {
-      "id": "tuktuk",
-      "name": "Tuk-Tuk",
-      "nameTh": "ตุ๊กตุ๊ก",
-      "type": "road",
-      "color": "#FFC107",
-      "baseFare": 60,
-      "fareFormula": "per-km",
-      "perKmRate": [
-        { "maxKm": 2, "rate": 0 },
-        { "maxKm": 99, "rate": 18 }
-      ],
-      "avgSpeedKmh": 15,
-      "operatingHours": "06:00-00:00",
-      "description": "Iconic three-wheeled vehicle, negotiated fares"
-    },
-    {
-      "id": "grab_car",
-      "name": "Grab Car",
-      "nameTh": "แกร็บคาร์",
-      "type": "road",
-      "color": "#4CAF50",
-      "baseFare": 45,
-      "fareFormula": "per-km",
-      "perKmRate": [
-        { "maxKm": 2, "rate": 0 },
-        { "maxKm": 99, "rate": 9 }
-      ],
-      "avgSpeedKmh": 11,
-      "operatingHours": "24 hours",
-      "description": "Ride-hailing app, transparent pricing before booking"
-    },
-    {
-      "id": "grab_bike",
-      "name": "Grab Bike",
-      "nameTh": "แกร็บไบค์",
-      "type": "road",
-      "color": "#00C853",
-      "baseFare": 25,
-      "fareFormula": "per-km",
-      "perKmRate": [
-        { "maxKm": 2, "rate": 0 },
-        { "maxKm": 99, "rate": 7 }
-      ],
-      "avgSpeedKmh": 20,
-      "operatingHours": "24 hours",
-      "description": "Grab motorcycle ride-hailing service"
+      "nameTh": "รถไฟฟ้า MRT สายสีม่วง",
+      "color": "#7B3F98",
+      "fare": {
+        "kind": "stations",
+        "table": [
+          {
+            "upTo": 1,
+            "fare": 14
+          },
+          {
+            "upTo": 2,
+            "fare": 17
+          },
+          {
+            "upTo": 3,
+            "fare": 20
+          },
+          {
+            "upTo": 4,
+            "fare": 23
+          },
+          {
+            "upTo": 5,
+            "fare": 25
+          },
+          {
+            "upTo": 6,
+            "fare": 27
+          },
+          {
+            "upTo": 7,
+            "fare": 30
+          },
+          {
+            "upTo": 8,
+            "fare": 33
+          },
+          {
+            "upTo": 9,
+            "fare": 36
+          },
+          {
+            "upTo": 10,
+            "fare": 38
+          },
+          {
+            "upTo": 11,
+            "fare": 40
+          },
+          {
+            "upTo": 999,
+            "fare": 42
+          }
+        ]
+      },
+      "transferDiscount": {
+        "with": [
+          "mrt_blue"
+        ],
+        "amount": 14,
+        "note": "Entry fee charged once when changing between MRT Blue and Purple"
+      },
+      "speedKmh": 40,
+      "waitMin": 4,
+      "hours": "05:30–00:00",
+      "description": "Nonthaburi to Tao Poon. 14–42 THB; 40 THB daily cap with EMV cards until 30 Nov 2026.",
+      "accuracy": "Range confirmed; per-station steps are estimates.",
+      "sources": [
+        {
+          "label": "Thansettakij — Purple Line fares from 3 Jul 2026",
+          "url": "https://www.thansettakij.com/economy/megaproject/661945",
+          "date": "2026-06-21"
+        },
+        {
+          "label": "Thansettakij — 40 THB daily cap (Red/Purple)",
+          "url": "https://www.thansettakij.com/economy/megaproject/644902",
+          "date": "2025-11-25"
+        }
+      ]
     },
     {
       "id": "mrt_yellow",
-      "name": "MRT Yellow Line",
-      "nameTh": "รถไฟฟ้าMRT สายสีเหลือง",
       "type": "rail",
-      "color": "#FFD600",
-      "baseFare": 15,
-      "fareFormula": "distance-based",
-      "fareTable": [
-        { "maxKm": 2, "fare": 15 },
-        { "maxKm": 4, "fare": 20 },
-        { "maxKm": 6, "fare": 24 },
-        { "maxKm": 8, "fare": 28 },
-        { "maxKm": 10, "fare": 32 },
-        { "maxKm": 14, "fare": 36 },
-        { "maxKm": 18, "fare": 40 },
-        { "maxKm": 22, "fare": 43 },
-        { "maxKm": 26, "fare": 45 },
-        { "maxKm": 99, "fare": 45 }
-      ],
-      "avgSpeedKmh": 35,
-      "operatingHours": "06:00-00:00",
-      "description": "Monorail connecting Lat Phrao to Samrong (23 stations)"
+      "name": "MRT Yellow Line",
+      "nameTh": "รถไฟฟ้าสายสีเหลือง",
+      "color": "#F2C400",
+      "fare": {
+        "kind": "stations",
+        "table": [
+          {
+            "upTo": 1,
+            "fare": 19
+          },
+          {
+            "upTo": 2,
+            "fare": 23
+          },
+          {
+            "upTo": 3,
+            "fare": 27
+          },
+          {
+            "upTo": 4,
+            "fare": 30
+          },
+          {
+            "upTo": 5,
+            "fare": 33
+          },
+          {
+            "upTo": 6,
+            "fare": 36
+          },
+          {
+            "upTo": 7,
+            "fare": 39
+          },
+          {
+            "upTo": 8,
+            "fare": 42
+          },
+          {
+            "upTo": 999,
+            "fare": 45
+          }
+        ]
+      },
+      "speedKmh": 35,
+      "waitMin": 4,
+      "hours": "06:00–00:00",
+      "description": "Monorail, Lat Phrao to Samrong. 15–45 THB.",
+      "accuracy": "Range confirmed; per-station steps from a secondary source (low confidence).",
+      "sources": [
+        {
+          "label": "Yellow Line fare table (secondary)",
+          "url": "https://www.toyotasure.com/contentdetail/contentdetailsui/id20260225-735",
+          "date": "2026-02-25"
+        }
+      ]
     },
     {
       "id": "mrt_pink",
-      "name": "MRT Pink Line",
-      "nameTh": "รถไฟฟ้าMRT สายสีชมพู",
       "type": "rail",
-      "color": "#E91E93",
-      "baseFare": 15,
-      "fareFormula": "distance-based",
-      "fareTable": [
-        { "maxKm": 2, "fare": 15 },
-        { "maxKm": 4, "fare": 20 },
-        { "maxKm": 6, "fare": 24 },
-        { "maxKm": 8, "fare": 28 },
-        { "maxKm": 10, "fare": 32 },
-        { "maxKm": 14, "fare": 36 },
-        { "maxKm": 18, "fare": 40 },
-        { "maxKm": 22, "fare": 43 },
-        { "maxKm": 26, "fare": 45 },
-        { "maxKm": 99, "fare": 45 }
-      ],
-      "avgSpeedKmh": 35,
-      "operatingHours": "06:00-00:00",
-      "description": "Monorail connecting Nonthaburi to Min Buri (30 stations)"
+      "name": "MRT Pink Line",
+      "nameTh": "รถไฟฟ้าสายสีชมพู",
+      "color": "#E5559E",
+      "fare": {
+        "kind": "stations",
+        "table": [
+          {
+            "upTo": 1,
+            "fare": 15
+          },
+          {
+            "upTo": 2,
+            "fare": 17
+          },
+          {
+            "upTo": 3,
+            "fare": 18
+          },
+          {
+            "upTo": 4,
+            "fare": 19
+          },
+          {
+            "upTo": 5,
+            "fare": 21
+          },
+          {
+            "upTo": 6,
+            "fare": 23
+          },
+          {
+            "upTo": 7,
+            "fare": 25
+          },
+          {
+            "upTo": 9,
+            "fare": 27
+          },
+          {
+            "upTo": 12,
+            "fare": 32
+          },
+          {
+            "upTo": 15,
+            "fare": 35
+          },
+          {
+            "upTo": 18,
+            "fare": 38
+          },
+          {
+            "upTo": 999,
+            "fare": 45
+          }
+        ]
+      },
+      "transferDiscount": {
+        "with": [
+          "mrt_purple"
+        ],
+        "amount": 14,
+        "note": "Same EMV card at Nonthaburi Civic Center within 30 min"
+      },
+      "speedKmh": 35,
+      "waitMin": 4,
+      "hours": "06:00–00:00",
+      "description": "Monorail, Nonthaburi Civic Center to Min Buri, with the Muang Thong Thani branch. 15–45 THB.",
+      "accuracy": "Range confirmed; per-station steps are estimates.",
+      "sources": [
+        {
+          "label": "Thansettakij — Pink Line opening fares",
+          "url": "https://www.thansettakij.com/business/economy/585270",
+          "date": "2024-01-08"
+        }
+      ]
+    },
+    {
+      "id": "arl",
+      "type": "rail",
+      "name": "Airport Rail Link",
+      "nameTh": "แอร์พอร์ต เรล ลิงก์",
+      "color": "#C8102E",
+      "fare": {
+        "kind": "stations",
+        "table": [
+          {
+            "upTo": 1,
+            "fare": 15
+          },
+          {
+            "upTo": 2,
+            "fare": 20
+          },
+          {
+            "upTo": 3,
+            "fare": 25
+          },
+          {
+            "upTo": 4,
+            "fare": 30
+          },
+          {
+            "upTo": 5,
+            "fare": 35
+          },
+          {
+            "upTo": 6,
+            "fare": 40
+          },
+          {
+            "upTo": 999,
+            "fare": 45
+          }
+        ]
+      },
+      "speedKmh": 60,
+      "waitMin": 6,
+      "hours": "05:30–00:00",
+      "description": "Suvarnabhumi Airport to Phaya Thai, 15 THB plus 5 THB per station (45 THB end to end).",
+      "sources": [
+        {
+          "label": "Airport Rail Link fares (secondary guides, 2026)",
+          "url": "https://en.wikipedia.org/wiki/Airport_Rail_Link_(Bangkok)",
+          "date": "2026"
+        }
+      ]
     },
     {
       "id": "srt_red",
-      "name": "SRT Red Line",
-      "nameTh": "รถไฟฟ้าชานเมือง สายสีแดง",
       "type": "rail",
-      "color": "#C62828",
-      "baseFare": 12,
-      "fareFormula": "distance-based",
-      "fareTable": [
-        { "maxKm": 2, "fare": 12 },
-        { "maxKm": 4, "fare": 17 },
-        { "maxKm": 6, "fare": 20 },
-        { "maxKm": 8, "fare": 23 },
-        { "maxKm": 10, "fare": 26 },
-        { "maxKm": 14, "fare": 30 },
-        { "maxKm": 18, "fare": 35 },
-        { "maxKm": 22, "fare": 38 },
-        { "maxKm": 26, "fare": 42 },
-        { "maxKm": 99, "fare": 42 }
-      ],
-      "avgSpeedKmh": 35,
-      "operatingHours": "06:00-00:00",
-      "description": "Commuter rail connecting Krung Thep Aphiwat to Rangsit and Taling Chan"
+      "name": "SRT Red Line",
+      "nameTh": "รถไฟฟ้าสายสีแดง",
+      "color": "#B71C1C",
+      "fare": {
+        "kind": "linear",
+        "base": 12,
+        "perKm": 1.5,
+        "max": 42
+      },
+      "speedKmh": 60,
+      "waitMin": 8,
+      "hours": "05:30–00:00",
+      "description": "Dark Red (to Rangsit via Don Mueang) and Light Red (to Taling Chan). 12 THB + 1.50 THB/km, max 42 THB; 40 THB daily cap with EMV until 30 Nov 2026.",
+      "sources": [
+        {
+          "label": "Thai PBS — Red Line fare formula",
+          "url": "https://www.thaipbs.or.th/news/content/310194",
+          "date": "2021"
+        },
+        {
+          "label": "Thansettakij — 40 THB daily cap (Red/Purple)",
+          "url": "https://www.thansettakij.com/economy/megaproject/644902",
+          "date": "2025-11-25"
+        }
+      ]
     },
     {
       "id": "gold",
+      "type": "rail",
       "name": "Gold Line",
       "nameTh": "รถไฟฟ้าสายสีทอง",
-      "type": "rail",
-      "color": "#BF9B30",
-      "baseFare": 17,
-      "fareFormula": "flat",
-      "fareTable": [
-        { "maxKm": 99, "fare": 17 }
-      ],
-      "avgSpeedKmh": 25,
-      "operatingHours": "06:00-00:00",
-      "description": "Short monorail connecting Krung Thon Buri BTS to ICONSIAM (3 stations)"
+      "color": "#C9A227",
+      "fare": {
+        "kind": "flat",
+        "fare": 17
+      },
+      "speedKmh": 25,
+      "waitMin": 4,
+      "hours": "06:00–00:00",
+      "description": "Short automated line from Krung Thon Buri to ICONSIAM and Khlong San. Flat 17 THB since 1 Jan 2026.",
+      "sources": [
+        {
+          "label": "Prachachat — Gold Line fare 17 THB",
+          "url": "https://www.prachachat.net/hilight-prachachat/news-1937086",
+          "date": "2025-12"
+        }
+      ]
+    },
+    {
+      "id": "bus_ac",
+      "type": "bus",
+      "name": "Bus (air-con)",
+      "nameTh": "รถเมล์ปรับอากาศ",
+      "color": "#E67E22",
+      "fare": {
+        "kind": "km",
+        "table": [
+          {
+            "upTo": 4,
+            "fare": 13
+          },
+          {
+            "upTo": 8,
+            "fare": 15
+          },
+          {
+            "upTo": 12,
+            "fare": 17
+          },
+          {
+            "upTo": 16,
+            "fare": 19
+          },
+          {
+            "upTo": 999,
+            "fare": 21
+          }
+        ]
+      },
+      "speedKmh": 15,
+      "waitMin": 10,
+      "hours": "05:00–23:00 (some routes 24 h)",
+      "description": "BMTA white-blue air-con buses, 13–21 THB by distance. Euro II and NGV buses are 14–26 THB; Thai Smile EV buses 15/20/25 THB.",
+      "accuracy": "Range confirmed; distance stages are estimates.",
+      "sources": [
+        {
+          "label": "Nestopa — Bangkok bus fares",
+          "url": "https://nestopa.com/th-en/articles/bangkok-bus-guide-fares-routes-tips",
+          "date": "2026-03"
+        }
+      ]
+    },
+    {
+      "id": "bus_nonac",
+      "type": "bus",
+      "name": "Bus (fan, non-AC)",
+      "nameTh": "รถเมล์ธรรมดา",
+      "color": "#D35400",
+      "fare": {
+        "kind": "flat",
+        "fare": 8
+      },
+      "speedKmh": 15,
+      "waitMin": 12,
+      "hours": "05:00–23:00 (9.50 THB overnight)",
+      "description": "BMTA red-cream fan buses, flat 8 THB. Being replaced by EV air-con buses from late 2026.",
+      "sources": [
+        {
+          "label": "Nestopa — Bangkok bus fares",
+          "url": "https://nestopa.com/th-en/articles/bangkok-bus-guide-fares-routes-tips",
+          "date": "2026-03"
+        },
+        {
+          "label": "Daily News — EV bus replacement",
+          "url": "https://www.dailynews.co.th/articles/6304098/",
+          "date": "2026"
+        }
+      ]
+    },
+    {
+      "id": "cp_orange",
+      "type": "boat",
+      "name": "Chao Phraya Express — Orange Flag",
+      "nameTh": "เรือด่วนเจ้าพระยา ธงส้ม",
+      "color": "#F28C28",
+      "fare": {
+        "kind": "flat",
+        "fare": 19
+      },
+      "speedKmh": 25,
+      "waitMin": 12,
+      "hours": "06:00–19:00",
+      "description": "Main express service Nonthaburi – Wat Rajsingkorn. Fuel-indexed; fare as of 5 Oct 2026.",
+      "sources": [
+        {
+          "label": "Infoquest — Chao Phraya fares from 5 Oct 2026",
+          "url": "https://www.infoquest.co.th/2026/657646",
+          "date": "2026-10-01"
+        }
+      ]
+    },
+    {
+      "id": "cp_yellow",
+      "type": "boat",
+      "name": "Chao Phraya Express — Yellow Flag",
+      "nameTh": "เรือด่วนเจ้าพระยา ธงเหลือง",
+      "color": "#E0B100",
+      "fare": {
+        "kind": "flat",
+        "fare": 24
+      },
+      "speedKmh": 30,
+      "waitMin": 20,
+      "hours": "Weekday rush hours",
+      "description": "Limited-stop rush-hour service Nonthaburi – Sathorn.",
+      "sources": [
+        {
+          "label": "Infoquest — Chao Phraya fares from 5 Oct 2026",
+          "url": "https://www.infoquest.co.th/2026/657646",
+          "date": "2026-10-01"
+        }
+      ]
+    },
+    {
+      "id": "cp_green",
+      "type": "boat",
+      "name": "Chao Phraya Express — Green-Yellow Flag",
+      "nameTh": "เรือด่วนเจ้าพระยา ธงเขียวเหลือง",
+      "color": "#5E9E2E",
+      "fare": {
+        "kind": "km",
+        "table": [
+          {
+            "upTo": 9,
+            "fare": 17
+          },
+          {
+            "upTo": 24,
+            "fare": 24
+          },
+          {
+            "upTo": 999,
+            "fare": 36
+          }
+        ]
+      },
+      "speedKmh": 30,
+      "waitMin": 20,
+      "hours": "Weekday rush hours",
+      "description": "Pak Kret – Nonthaburi 17, Nonthaburi – Sathorn 24, full route 36 THB (zones approximated by distance).",
+      "sources": [
+        {
+          "label": "Infoquest — Chao Phraya fares from 5 Oct 2026",
+          "url": "https://www.infoquest.co.th/2026/657646",
+          "date": "2026-10-01"
+        }
+      ]
+    },
+    {
+      "id": "cp_local",
+      "type": "boat",
+      "name": "Chao Phraya Express — Local (no flag)",
+      "nameTh": "เรือด่วนเจ้าพระยา ไม่มีธง",
+      "color": "#2A9D8F",
+      "fare": {
+        "kind": "flat",
+        "fare": 15
+      },
+      "speedKmh": 18,
+      "waitMin": 20,
+      "hours": "Weekday rush hours",
+      "description": "All-stop local service.",
+      "accuracy": "Estimate — not in the Oct 2026 fare notice.",
+      "sources": []
+    },
+    {
+      "id": "cp_tourist",
+      "type": "boat",
+      "name": "Chao Phraya Tourist Boat (blue flag)",
+      "nameTh": "เรือท่องเที่ยวเจ้าพระยา ธงฟ้า",
+      "color": "#1F78B4",
+      "fare": {
+        "kind": "flat",
+        "fare": 30
+      },
+      "speedKmh": 20,
+      "waitMin": 25,
+      "hours": "09:00–19:00",
+      "description": "Hop-on tourist boat; day pass about 150 THB.",
+      "accuracy": "Estimate.",
+      "sources": []
+    },
+    {
+      "id": "smart_ferry",
+      "type": "boat",
+      "name": "Chao Phraya Smart Ferry",
+      "nameTh": "เรือโดยสารไฟฟ้า",
+      "color": "#6A4C93",
+      "fare": {
+        "kind": "flat",
+        "fare": 20
+      },
+      "speedKmh": 20,
+      "waitMin": 20,
+      "hours": "07:00–19:00",
+      "description": "Electric ferries (Urban and City lines).",
+      "accuracy": "Estimate.",
+      "sources": []
+    },
+    {
+      "id": "khlong",
+      "type": "boat",
+      "name": "Khlong Saen Saep Boat",
+      "nameTh": "เรือคลองแสนแสบ",
+      "color": "#0E7C86",
+      "fare": {
+        "kind": "km",
+        "table": [
+          {
+            "upTo": 4,
+            "fare": 15
+          },
+          {
+            "upTo": 8,
+            "fare": 17
+          },
+          {
+            "upTo": 12,
+            "fare": 19
+          },
+          {
+            "upTo": 16,
+            "fare": 21
+          },
+          {
+            "upTo": 20,
+            "fare": 23
+          },
+          {
+            "upTo": 999,
+            "fare": 25
+          }
+        ]
+      },
+      "speedKmh": 20,
+      "waitMin": 6,
+      "hours": "05:30–20:30 (weekends shorter)",
+      "description": "Canal boat Phan Fa Lilat – Pratunam – Wat Sriboonreung. 15–25 THB by distance since 7 Apr 2026 (fuel-indexed).",
+      "accuracy": "Range confirmed; distance stages are estimates.",
+      "sources": [
+        {
+          "label": "Infoquest — Saen Saep fares 15–25 THB",
+          "url": "https://www.infoquest.co.th/?p=580141",
+          "date": "2026-04-07"
+        }
+      ]
+    },
+    {
+      "id": "khlong_padung",
+      "type": "boat",
+      "name": "Khlong Phadung Krung Kasem Boat",
+      "nameTh": "เรือคลองผดุงกรุงเกษม",
+      "color": "#3D9970",
+      "fare": {
+        "kind": "free"
+      },
+      "speedKmh": 12,
+      "waitMin": 15,
+      "hours": "06:00–19:00",
+      "description": "BMA canal boat Hua Lamphong – Thewet.",
+      "accuracy": "Estimate — free service at launch.",
+      "sources": []
+    },
+    {
+      "id": "khlong_bangkok_yai",
+      "type": "boat",
+      "name": "Khlong Bangkok Yai Boat",
+      "nameTh": "เรือคลองบางกอกใหญ่",
+      "color": "#4D8F6A",
+      "fare": {
+        "kind": "flat",
+        "fare": 15
+      },
+      "speedKmh": 12,
+      "waitMin": 30,
+      "hours": "Limited",
+      "description": "Thonburi canal service to the Chao Phraya.",
+      "accuracy": "Estimate.",
+      "sources": []
+    },
+    {
+      "id": "ferry",
+      "type": "boat",
+      "name": "Cross-river ferry",
+      "nameTh": "เรือข้ามฟาก",
+      "color": "#5B8DB8",
+      "fare": {
+        "kind": "flat",
+        "fare": 5
+      },
+      "speedKmh": 10,
+      "waitMin": 8,
+      "hours": "05:00–22:00",
+      "description": "Short crossings of the Chao Phraya.",
+      "accuracy": "Estimate (typically 4–5 THB).",
+      "sources": []
+    },
+    {
+      "id": "taxi",
+      "type": "road",
+      "name": "Taxi (meter)",
+      "nameTh": "แท็กซี่",
+      "color": "#D81B60",
+      "fare": {
+        "kind": "meter",
+        "base": 35,
+        "baseKm": 1,
+        "tiers": [
+          {
+            "upTo": 10,
+            "rate": 6.5
+          },
+          {
+            "upTo": 20,
+            "rate": 7
+          },
+          {
+            "upTo": 40,
+            "rate": 8
+          },
+          {
+            "upTo": 60,
+            "rate": 8.5
+          },
+          {
+            "upTo": 80,
+            "rate": 9
+          },
+          {
+            "upTo": 9999,
+            "rate": 10.5
+          }
+        ],
+        "perMinIdle": 3,
+        "idleShare": 0.2
+      },
+      "speedKmh": 20,
+      "waitMin": 5,
+      "circuity": 1.35,
+      "hours": "24 hours",
+      "description": "35 THB for the first km, then 6.50–10.50 THB/km, plus 3 THB/min in standstill traffic (we assume 20% of the trip). Tolls and the 50 THB airport pickup fee are extra.",
+      "sources": [
+        {
+          "label": "Thai PBS — taxi meter rates from 13 Jan 2023",
+          "url": "https://www.thaipbs.or.th/news/content/323504",
+          "date": "2023-01-13"
+        },
+        {
+          "label": "Suvarnabhumi Airport — taxi service",
+          "url": "https://suvarnabhumi.airportthai.co.th/service/transportation/detail/834",
+          "date": "2026"
+        }
+      ]
+    },
+    {
+      "id": "grab_car",
+      "type": "road",
+      "name": "Grab Car (estimate)",
+      "nameTh": "แกร็บคาร์",
+      "color": "#00A651",
+      "fare": {
+        "kind": "distance",
+        "base": 65,
+        "baseKm": 2,
+        "perKm": 9,
+        "perMin": 0.6,
+        "range": [
+          0.9,
+          1.6
+        ]
+      },
+      "speedKmh": 20,
+      "waitMin": 6,
+      "circuity": 1.35,
+      "hours": "24 hours",
+      "description": "Includes the 20 THB booking fee. Surge pricing (1.3–2.5×) is common at peak hours and in rain.",
+      "accuracy": "Estimate based on the Ministry of Transport fare band for app cars.",
+      "sources": [
+        {
+          "label": "Thansettakij — app car fare band",
+          "url": "https://www.thansettakij.com/economy/503104",
+          "date": "2021-11-12"
+        },
+        {
+          "label": "Thai Budget Planner — Bangkok taxi & Grab prices",
+          "url": "https://thaibudgetplanner.com/news/2026-10-02-thailand-travel-costs-bangkok-taxi-grab-tuk-tuk",
+          "date": "2026-10-02"
+        }
+      ]
+    },
+    {
+      "id": "grab_bike",
+      "type": "road",
+      "name": "Grab Bike (estimate)",
+      "nameTh": "แกร็บไบค์",
+      "color": "#2E7D32",
+      "fare": {
+        "kind": "distance",
+        "base": 25,
+        "baseKm": 2,
+        "tiers": [
+          {
+            "upTo": 5,
+            "rate": 6
+          },
+          {
+            "upTo": 9999,
+            "rate": 9
+          }
+        ],
+        "range": [
+          0.9,
+          1.5
+        ]
+      },
+      "speedKmh": 24,
+      "waitMin": 5,
+      "circuity": 1.3,
+      "hours": "24 hours",
+      "description": "Motorbike ride-hailing. Roughly tracks the motorcycle-taxi tariff.",
+      "accuracy": "Estimate.",
+      "sources": []
+    },
+    {
+      "id": "motorcycle",
+      "type": "road",
+      "name": "Motorcycle taxi (win)",
+      "nameTh": "มอเตอร์ไซค์รับจ้าง",
+      "color": "#8D6E63",
+      "fare": {
+        "kind": "distance",
+        "base": 25,
+        "baseKm": 2,
+        "tiers": [
+          {
+            "upTo": 5,
+            "rate": 5
+          },
+          {
+            "upTo": 9999,
+            "rate": 10
+          }
+        ]
+      },
+      "speedKmh": 24,
+      "waitMin": 2,
+      "circuity": 1.3,
+      "hours": "Most stands 06:00–22:00",
+      "description": "DLT maximum tariff: 25 THB for 2 km, +5 THB/km to 5 km, +10 THB/km to 15 km; longer trips are negotiated.",
+      "sources": [
+        {
+          "label": "Thai Publica — DLT motorcycle taxi tariff",
+          "url": "https://thaipublica.org/2016/06/bangkokpublica-3/",
+          "date": "2016-06"
+        }
+      ]
+    },
+    {
+      "id": "tuktuk",
+      "type": "road",
+      "name": "Tuk-tuk (negotiated)",
+      "nameTh": "ตุ๊กตุ๊ก",
+      "color": "#F9A825",
+      "fare": {
+        "kind": "distance",
+        "base": 60,
+        "baseKm": 2,
+        "perKm": 20,
+        "range": [
+          0.8,
+          1.6
+        ]
+      },
+      "speedKmh": 18,
+      "waitMin": 3,
+      "circuity": 1.35,
+      "hours": "Varies",
+      "description": "No meter. Typical prices 50–100 THB for 1–2 km and 100–200 THB for 2–5 km; tourist quotes are often 2–3× a taxi.",
+      "accuracy": "Estimate.",
+      "sources": [
+        {
+          "label": "Thai Budget Planner — tuk-tuk prices",
+          "url": "https://thaibudgetplanner.com/news/2026-10-02-thailand-travel-costs-bangkok-taxi-grab-tuk-tuk",
+          "date": "2026-10-02"
+        }
+      ]
     }
   ]
 }
