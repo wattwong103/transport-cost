@@ -67,7 +67,7 @@
       document.getElementById('method').innerHTML =
         'Public transport: best route on the rail, BMTA bus and boat network, paying a fare each time you board, ' +
         'with up to 1 km of walking at each end. Road modes use straight-line distance × 1.35. Fares as of ' +
-        esc(r[0].updated) + ' (air-con bus fares). <a href="index.html">Fare tables</a>';
+        esc(r[0].updated) + ' (air-con bus fares). <a href="compare.html">Fare tables</a>';
       document.getElementById('loading').classList.add('hidden');
       setOrigin(origin.lat, origin.lng, origin.name);
     }).catch(function (err) {

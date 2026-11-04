@@ -51,7 +51,7 @@
       buildPlaces(r[1]);
       document.getElementById('faresNote').innerHTML =
         'Fares as of ' + esc(r[0].updated) + '. Bus and boat fares assume one ticket per boarding; ' +
-        'rail fares follow each operator’s table. <a href="index.html">See all fare tables</a>.';
+        'rail fares follow each operator’s table. <a href="compare.html">See all fare tables</a>.';
       document.getElementById('loading').classList.add('hidden');
       renderExamples();
       compute();

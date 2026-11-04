@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Compare Modes — Bangkok Fares</title>
+  <meta name="description" content="Bangkok fares for BTS, MRT, SRT, Airport Rail Link, buses, boats, taxis, Grab and motorcycle taxis, compared by distance.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="app-header">
+    <a class="brand" href="index.html">
+      <span class="brand-mark">฿</span>
+      <span><span class="brand-name">Bangkok Fares</span><br><span class="brand-sub">What it really costs to get around</span></span>
+    </a>
+    <nav class="nav">
+      <a href="index.html">Trip planner</a>
+      <a href="isoline.html">Reach map</a>
+      <a href="compare.html" class="active">Compare modes</a>
+    </nav>
+  </header>
+
+  <main class="app">
+    <aside class="panel">
+      <section class="section">
+        <h1 class="page-title">Compare modes</h1>
+        <p class="page-lede">What a single trip of a given length costs on each mode, and roughly how long it takes.</p>
+        <div style="margin-top:14px">
+          <div class="range-head"><span class="muted">Trip length</span><span class="range-value num" id="kmValue">10 km</span></div>
+          <input type="range" class="range" id="kmSlider" min="1" max="40" value="10" step="1" aria-label="Trip length in km">
+        </div>
+        <div class="seg" id="sortBy" style="margin-top:12px">
+          <button data-s="fare" class="active">Sort by fare</button>
+          <button data-s="time">Sort by time</button>
+        </div>
+      </section>
+
+      <section class="section">
+        <div id="rank" class="rank"></div>
+        <div id="detail"></div>
+      </section>
+
+      <section class="section">
+        <div class="section-title">Fare by distance</div>
+        <div class="seg" id="chartMetric" style="margin-bottom:10px">
+          <button data-c="fare" class="active">Fare</button>
+          <button data-c="time">Time</button>
+        </div>
+        <div class="chart-box"><canvas id="chart" aria-label="Fare by distance chart"></canvas></div>
+        <p class="note" style="margin-top:8px">Tap a mode above for its fare table; tap its colour dot to show or hide it here.</p>
+      </section>
+
+      <section class="section">
+        <div class="section-title">Map layers</div>
+        <div class="chips" id="layerChips"></div>
+      </section>
+
+      <section class="section">
+        <div class="section-title">About these fares</div>
+        <ul class="note" id="notes" style="padding-left:16px;display:grid;gap:4px"></ul>
+      </section>
+    </aside>
+
+    <div class="map-wrap">
+      <div id="map" class="map"></div>
+      <div class="loading" id="loading">Loading…</div>
+    </div>
+  </main>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/graph.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

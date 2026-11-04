@@ -4,90 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Trip Planner — Bangkok Fares</title>
-  <meta name="description" content="Plan a trip across Bangkok by BTS, MRT, SRT, bus and boat and see the fare for every leg.">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="canonical" href="index.html">
+  <meta name="robots" content="noindex">
+  <script>location.replace('index.html' + location.hash);</script>
+  <noscript><meta http-equiv="refresh" content="0; url=index.html"></noscript>
 </head>
 <body>
-  <header class="app-header">
-    <a class="brand" href="planner.html">
-      <span class="brand-mark">฿</span>
-      <span><span class="brand-name">Bangkok Fares</span><br><span class="brand-sub">What it really costs to get around</span></span>
-    </a>
-    <nav class="nav">
-      <a href="planner.html" class="active">Trip planner</a>
-      <a href="isoline.html">Reach map</a>
-      <a href="index.html">Compare modes</a>
-    </nav>
-  </header>
-
-  <main class="app">
-    <aside class="panel">
-      <section class="section">
-        <h1 class="page-title">Plan a trip</h1>
-        <p class="page-lede">Door-to-door by rail, bus, boat and walking, with the fare for every leg.</p>
-        <div style="margin-top:14px">
-          <div class="field">
-            <span class="pin o" aria-hidden="true"></span>
-            <input id="originInput" class="input" list="placeList" placeholder="From — station, pier, or click the map" autocomplete="off" aria-label="From">
-            <button class="clear hidden" data-clear="o" aria-label="Clear origin">×</button>
-          </div>
-          <div class="field">
-            <span class="pin d" aria-hidden="true"></span>
-            <input id="destInput" class="input" list="placeList" placeholder="To — station, pier, or click the map" autocomplete="off" aria-label="To">
-            <button class="clear hidden" data-clear="d" aria-label="Clear destination">×</button>
-          </div>
-          <datalist id="placeList"></datalist>
-          <div class="swap-row">
-            <button class="link-btn" id="swapBtn">⇅ Swap</button>
-            <button class="link-btn" id="locateBtn">◎ Use my location</button>
-          </div>
-        </div>
-      </section>
-
-      <section class="section" id="examplesSection">
-        <div class="section-title">Try a trip</div>
-        <div class="chips" id="examples"></div>
-      </section>
-
-      <section class="section hidden" id="optionsSection">
-        <div class="section-title">Options</div>
-        <div class="options" id="options"></div>
-      </section>
-
-      <section class="section hidden" id="itinSection">
-        <div class="section-title">Step by step</div>
-        <div class="itin" id="itin"></div>
-      </section>
-
-      <section class="section hidden" id="roadSection">
-        <div class="section-title">Same trip by road <span class="muted" style="text-transform:none;letter-spacing:0;font-weight:500">estimate</span></div>
-        <table class="compare-table" id="roadTable"></table>
-      </section>
-
-      <section class="section">
-        <div class="section-title">Bus fare</div>
-        <div class="seg" id="busType">
-          <button data-bus="bus_ac" class="active">Air-con</button>
-          <button data-bus="bus_nonac">Fan (non-AC)</button>
-        </div>
-        <p class="note" style="margin-top:10px" id="faresNote"></p>
-      </section>
-    </aside>
-
-    <div class="map-wrap">
-      <div id="map" class="map"></div>
-      <div class="map-hint" id="mapHint">Click the map to set your starting point</div>
-      <div class="loading" id="loading">Loading network…</div>
-    </div>
-  </main>
-
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="js/common.js"></script>
-  <script src="js/graph.js"></script>
-  <script src="js/planner.js"></script>
+  <p>The trip planner has moved to the <a href="index.html">home page</a>.</p>
 </body>
 </html>
