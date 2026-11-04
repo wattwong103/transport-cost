@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Compare Modes — Bangkok Fares</title>
-  <meta name="description" content="Bangkok fares for BTS, MRT, SRT, Airport Rail Link, buses, boats, taxis, Grab and motorcycle taxis, compared by distance.">
+  <title>Trip Planner — Bangkok Fares</title>
+  <meta name="description" content="Plan a trip across Bangkok by BTS, MRT, SRT, bus and boat and see the fare for every leg.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap">
@@ -13,68 +13,81 @@
 </head>
 <body>
   <header class="app-header">
-    <a class="brand" href="planner.html">
+    <a class="brand" href="index.html">
       <span class="brand-mark">฿</span>
       <span><span class="brand-name">Bangkok Fares</span><br><span class="brand-sub">What it really costs to get around</span></span>
     </a>
     <nav class="nav">
-      <a href="planner.html">Trip planner</a>
+      <a href="index.html" class="active">Trip planner</a>
       <a href="isoline.html">Reach map</a>
-      <a href="index.html" class="active">Compare modes</a>
+      <a href="compare.html">Compare modes</a>
     </nav>
   </header>
 
   <main class="app">
     <aside class="panel">
       <section class="section">
-        <h1 class="page-title">Compare modes</h1>
-        <p class="page-lede">What a single trip of a given length costs on each mode, and roughly how long it takes.</p>
+        <h1 class="page-title">Plan a trip</h1>
+        <p class="page-lede">Door-to-door by rail, bus, boat and walking, with the fare for every leg.</p>
         <div style="margin-top:14px">
-          <div class="range-head"><span class="muted">Trip length</span><span class="range-value num" id="kmValue">10 km</span></div>
-          <input type="range" class="range" id="kmSlider" min="1" max="40" value="10" step="1" aria-label="Trip length in km">
+          <div class="field">
+            <span class="pin o" aria-hidden="true"></span>
+            <input id="originInput" class="input" list="placeList" placeholder="From — station, pier, or click the map" autocomplete="off" aria-label="From">
+            <button class="clear hidden" data-clear="o" aria-label="Clear origin">×</button>
+          </div>
+          <div class="field">
+            <span class="pin d" aria-hidden="true"></span>
+            <input id="destInput" class="input" list="placeList" placeholder="To — station, pier, or click the map" autocomplete="off" aria-label="To">
+            <button class="clear hidden" data-clear="d" aria-label="Clear destination">×</button>
+          </div>
+          <datalist id="placeList"></datalist>
+          <div class="swap-row">
+            <button class="link-btn" id="swapBtn">⇅ Swap</button>
+            <button class="link-btn" id="locateBtn">◎ Use my location</button>
+          </div>
         </div>
-        <div class="seg" id="sortBy" style="margin-top:12px">
-          <button data-s="fare" class="active">Sort by fare</button>
-          <button data-s="time">Sort by time</button>
+      </section>
+
+      <section class="section" id="examplesSection">
+        <div class="section-title">Try a trip</div>
+        <div class="chips" id="examples"></div>
+      </section>
+
+      <section class="section hidden" id="optionsSection">
+        <div class="section-title">Options</div>
+        <div class="options" id="options"></div>
+      </section>
+
+      <section class="section hidden" id="itinSection">
+        <div class="section-title">Step by step</div>
+        <div class="itin" id="itin"></div>
+      </section>
+
+      <section class="section hidden" id="roadSection">
+        <div class="section-title">Same trip by road <span class="muted" style="text-transform:none;letter-spacing:0;font-weight:500">estimate</span></div>
+        <table class="compare-table" id="roadTable"></table>
+      </section>
+
+      <section class="section">
+        <div class="section-title">Bus fare</div>
+        <div class="seg" id="busType">
+          <button data-bus="bus_ac" class="active">Air-con</button>
+          <button data-bus="bus_nonac">Fan (non-AC)</button>
         </div>
-      </section>
-
-      <section class="section">
-        <div id="rank" class="rank"></div>
-        <div id="detail"></div>
-      </section>
-
-      <section class="section">
-        <div class="section-title">Fare by distance</div>
-        <div class="seg" id="chartMetric" style="margin-bottom:10px">
-          <button data-c="fare" class="active">Fare</button>
-          <button data-c="time">Time</button>
-        </div>
-        <div class="chart-box"><canvas id="chart" aria-label="Fare by distance chart"></canvas></div>
-        <p class="note" style="margin-top:8px">Tap a mode above for its fare table; tap its colour dot to show or hide it here.</p>
-      </section>
-
-      <section class="section">
-        <div class="section-title">Map layers</div>
-        <div class="chips" id="layerChips"></div>
-      </section>
-
-      <section class="section">
-        <div class="section-title">About these fares</div>
-        <ul class="note" id="notes" style="padding-left:16px;display:grid;gap:4px"></ul>
+        <p class="note" style="margin-top:10px" id="faresNote"></p>
       </section>
     </aside>
 
     <div class="map-wrap">
       <div id="map" class="map"></div>
-      <div class="loading" id="loading">Loading…</div>
+      <div class="map-hint" id="mapHint">Click the map to set your starting point</div>
+      <div class="loading" id="loading">Loading network…</div>
     </div>
   </main>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script src="js/common.js"></script>
   <script src="js/graph.js"></script>
-  <script src="js/app.js"></script>
+  <script src="js/planner.js"></script>
 </body>
 </html>

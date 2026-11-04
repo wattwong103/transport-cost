@@ -2,9 +2,9 @@
 
 A static site (GitHub Pages) that shows what it really costs to get around Bangkok.
 
-- **Trip planner** (`planner.html`) — door-to-door routes by rail, BMTA bus, boat and walking, with the fare for every leg, plus the same trip by taxi, Grab, motorcycle taxi and tuk-tuk. Shareable URLs (`#o=lat,lng&d=lat,lng`).
+- **Trip planner** (`index.html`, the home page) — door-to-door routes by rail, BMTA bus, boat and walking, with the fare for every leg, plus the same trip by taxi, Grab, motorcycle taxi and tuk-tuk. Shareable URLs (`#o=lat,lng&d=lat,lng`).
 - **Reach map** (`isoline.html`) — the fare or travel time to every part of the city from any starting point, by public transport (all, rail, bus, boat) or by road.
-- **Compare modes** (`index.html`) — what a trip of a given length costs on each mode, with every fare table and its source.
+- **Compare modes** (`compare.html`) — what a trip of a given length costs on each mode, with every fare table and its source.
 
 Everything runs in the browser; there is no server.
 
