@@ -1,560 +1,302 @@
 // ============================================================
-// Bangkok Transport Cost Comparison - Main Application
+// Compare modes — fare and time for a trip of a given length
 // ============================================================
-
 (function () {
   'use strict';
 
-  // State
-  let transportModes = [];
-  let trainData = null;
-  let railGeoJSON = null;
-  let boatGeoJSON = null;
-  let map = null;
-  let costChart = null;
-  let timeChart = null;
-  let selectedDistance = 10;
-  let activeModeFilter = 'all';
-  let trainLayers = {};
-  let boatLayers = {};
-  let busRouteLayer = null;
+  var esc = BKK.esc;
+  var GROUPS = [
+    { id: 'rail', label: 'Rail' },
+    { id: 'bus', label: 'Bus' },
+    { id: 'boat', label: 'Boat' },
+    { id: 'road', label: 'Road' },
+  ];
+  // boats that only cover short or fixed stretches are left out of the distance comparison
+  var SKIP = { ferry: 1, khlong_padung: 1, khlong_bangkok_yai: 1, cp_yellow: 1, cp_green: 1, cp_local: 1, cp_tourist: 1, smart_ferry: 1 };
+  var DEFAULT_CHART = ['bts', 'mrt_blue', 'srt_red', 'bus_ac', 'bus_nonac', 'cp_orange', 'taxi', 'grab_car', 'motorcycle'];
 
-  // ============================================================
-  // Data Loading
-  // ============================================================
+  var modes = [], data = null, rail = null, spacing = {};
+  var km = 10, sortBy = 'fare', chartMetric = 'fare', chart = null, openId = null;
+  var chartSet = {};
+  var map, layers = {};
 
-  async function loadData() {
-    try {
-      const [modesRes, trainRes, railRes, boatRes] = await Promise.all([
-        fetch('data/transport-modes.json'),
-        fetch('data/train-stations.json'),
-        fetch('data/osm-rail-routes.geojson'),
-        fetch('data/osm-boat-routes.geojson')
-      ]);
-      const modesData = await modesRes.json();
-      transportModes = modesData.modes;
-      trainData = await trainRes.json();
-      railGeoJSON = await railRes.json();
-      boatGeoJSON = await boatRes.json();
-
-      hideLoading();
-      initMap();
-      initCharts();
-      renderModeCards();
-      renderLayerToggles();
-      updateCharts();
-    } catch (err) {
-      console.error('Failed to load data:', err);
-      document.getElementById('loading').textContent = 'Failed to load data. Please refresh.';
-    }
-  }
-
-  function hideLoading() {
-    document.getElementById('loading').classList.add('hidden');
-  }
-
-  // ============================================================
-  // Fare Calculation
-  // ============================================================
-
-  function calculateFare(mode, distanceKm) {
-    if (mode.fareFormula === 'flat') {
-      return mode.fareTable[0].fare;
-    }
-
-    if (mode.fareFormula === 'distance-based') {
-      for (const tier of mode.fareTable) {
-        if (distanceKm <= tier.maxKm) {
-          return tier.fare;
-        }
-      }
-      return mode.fareTable[mode.fareTable.length - 1].fare;
-    }
-
-    if (mode.fareFormula === 'metered' || mode.fareFormula === 'per-km') {
-      let fare = mode.baseFare;
-      let remaining = distanceKm;
-      let prevMax = 0;
-
-      for (const tier of mode.perKmRate) {
-        const tierDist = Math.min(remaining, tier.maxKm - prevMax);
-        if (tierDist > 0) {
-          fare += tierDist * tier.rate;
-          remaining -= tierDist;
-        }
-        prevMax = tier.maxKm;
-        if (remaining <= 0) break;
-      }
-      return Math.round(fare);
-    }
-
-    return mode.baseFare;
-  }
-
-  function calculateTime(mode, distanceKm) {
-    return (distanceKm / mode.avgSpeedKmh) * 60; // minutes
-  }
-
-  // ============================================================
-  // Map Initialization
-  // ============================================================
-
-  function initMap() {
-    map = L.map('map', {
-      center: [13.7563, 100.5018],
-      zoom: 12,
-      zoomControl: true
+  function load() {
+    Promise.all([
+      BKK.getJSON('data/transport-modes.json'),
+      BKK.getJSON('data/rail-network.json'),
+      BKK.getJSON('data/rail-geometry.geojson'),
+      BKK.getJSON('data/osm-boat-routes.geojson'),
+    ]).then(function (r) {
+      data = r[0];
+      modes = data.modes.filter(function (m) { return !SKIP[m.id]; });
+      TransitGraph.setModes(data.modes);
+      rail = r[1];
+      computeSpacing();
+      DEFAULT_CHART.forEach(function (id) { chartSet[id] = 1; });
+      initMap(r[2], r[3]);
+      renderNotes();
+      render();
+      document.getElementById('loading').classList.add('hidden');
+    }).catch(function (err) {
+      console.error(err);
+      document.getElementById('loading').textContent = 'Could not load data: ' + err.message;
     });
-
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-      maxZoom: 18
-    }).addTo(map);
-
-    addTrainLines();
-    addBoatRoutes();
-    loadBusRoutes();
   }
 
-  function addTrainLines() {
-    if (!trainData) return;
-
-    // Draw each line
-    for (const [lineId, lineInfo] of Object.entries(trainData.lines)) {
-      const layerGroup = L.layerGroup();
-
-      // Try to use OSM GeoJSON geometry first
-      const osmFeature = railGeoJSON && railGeoJSON.features.find(
-        f => f.properties.lineId === lineId
-      );
-
-      if (osmFeature && osmFeature.geometry.coordinates.length > 0) {
-        // Use real OSM route geometry
-        const coords = osmFeature.geometry.coordinates.map(c => [c[1], c[0]]);
-        L.polyline(coords, {
-          color: lineInfo.color,
-          weight: 4,
-          opacity: 0.8
-        }).addTo(layerGroup);
-      } else {
-        // Fallback: straight lines between stations
-        const lineStations = Object.entries(trainData.stations)
-          .filter(([, s]) => s.line === lineId)
-          .sort((a, b) => {
-            const numA = parseInt(a[0].replace(/[^\d]/g, '')) || 0;
-            const numB = parseInt(b[0].replace(/[^\d]/g, '')) || 0;
-            return numA - numB;
-          });
-
-        if (lineStations.length > 1) {
-          const coords = lineStations.map(([, s]) => [s.lat, s.lng]);
-          L.polyline(coords, {
-            color: lineInfo.color,
-            weight: 4,
-            opacity: 0.8
-          }).addTo(layerGroup);
-        }
+  // average km between stations per fare system, to turn "km" into "stations"
+  function computeSpacing() {
+    var sum = {}, n = {};
+    rail.lines.forEach(function (l) {
+      for (var i = 1; i < l.stations.length; i++) {
+        var a = rail.stations[l.stations[i - 1]], b = rail.stations[l.stations[i]];
+        var d = TransitGraph.haversineKm(a.lat, a.lng, b.lat, b.lng) * 1.05;
+        sum[l.fare] = (sum[l.fare] || 0) + d; n[l.fare] = (n[l.fare] || 0) + 1;
       }
+    });
+    for (var f in sum) spacing[f] = sum[f] / n[f];
+  }
 
-      // Add station markers
-      const lineStations = Object.entries(trainData.stations)
-        .filter(([, s]) => s.line === lineId);
-
-      for (const [code, station] of lineStations) {
-        const marker = L.circleMarker([station.lat, station.lng], {
-          radius: 5,
-          fillColor: lineInfo.color,
-          color: '#fff',
-          weight: 2,
-          fillOpacity: 1
-        });
-
-        marker.bindPopup(`
-          <div class="station-popup">
-            <h3>${station.name}</h3>
-            <div>${station.nameTh || ''}</div>
-            <span class="line-badge" style="background:${lineInfo.color}">${lineInfo.name}</span>
-            <div class="detail">Station: ${code.toUpperCase()}</div>
-          </div>
-        `);
-
-        marker.addTo(layerGroup);
-      }
-
-      layerGroup.addTo(map);
-      trainLayers[lineId] = { layer: layerGroup, visible: true, info: lineInfo };
+  function trip(mode, dist) {
+    var stops = 0, minutes;
+    if (mode.type === 'rail') {
+      stops = Math.max(1, Math.round(dist / (spacing[mode.id] || 1.2)));
+      minutes = dist / mode.speedKmh * 60 + stops * 0.5 + mode.waitMin + 3;
+    } else if (mode.type === 'bus') {
+      minutes = dist / mode.speedKmh * 60 + dist / 0.45 * 0.35 + mode.waitMin;
+    } else if (mode.type === 'boat') {
+      minutes = dist / mode.speedKmh * 60 + mode.waitMin + 1;
+    } else {
+      minutes = dist / mode.speedKmh * 60 + mode.waitMin;
     }
+    var fare = TransitGraph.legFare(mode, { km: dist, stops: stops, minutes: minutes });
+    var range = mode.fare.range ? [Math.round(fare * mode.fare.range[0]), Math.round(fare * mode.fare.range[1])] : null;
+    var note = '';
+    if (mode.type === 'rail') note = '≈ ' + stops + ' station' + (stops > 1 ? 's' : '');
+    var maxKm = lineLength(mode.id);
+    var outOfRange = maxKm && dist > maxKm + 0.5;
+    return { fare: fare, minutes: minutes, range: range, note: note, outOfRange: outOfRange, maxKm: maxKm };
   }
 
-  function addBoatRoutes() {
-    if (!boatGeoJSON) return;
+  // longest possible single ride on a rail system (km)
+  function lineLength(fareId) {
+    var best = 0;
+    rail.lines.forEach(function (l) {
+      if (l.fare !== fareId) return;
+      var d = 0;
+      for (var i = 1; i < l.stations.length; i++) {
+        var a = rail.stations[l.stations[i - 1]], b = rail.stations[l.stations[i]];
+        d += TransitGraph.haversineKm(a.lat, a.lng, b.lat, b.lng) * 1.05;
+      }
+      best = Math.max(best, d);
+    });
+    if (fareId === 'bts' || fareId === 'srt_red') best *= 1.6;   // two lines in one fare system
+    if (fareId === 'cp_orange') best = 25;
+    if (fareId === 'khlong') best = 18;
+    return best || 0;
+  }
 
-    const boatRouteConfigs = {
-      chao_phraya: { name: 'Chao Phraya Express Boat', color: '#00BCD4' },
-      khlong: { name: 'Khlong Saen Saep Boat', color: '#009688' },
+  // ---------------------------------------------------------------
+  function render() {
+    document.getElementById('kmValue').textContent = km + ' km';
+    var rows = modes.map(function (m) { return { m: m, t: trip(m, km) }; });
+    var key = sortBy === 'fare' ? function (r) { return r.t.fare; } : function (r) { return r.t.minutes; };
+    var maxV = Math.max.apply(null, rows.filter(function (r) { return !r.t.outOfRange; }).map(key));
+    var html = '';
+    GROUPS.forEach(function (g) {
+      var list = rows.filter(function (r) { return r.m.type === g.id; }).sort(function (a, b) {
+        return (a.t.outOfRange - b.t.outOfRange) || key(a) - key(b);
+      });
+      if (!list.length) return;
+      html += '<div class="rank-group">' + g.label + '</div>';
+      list.forEach(function (r) {
+        var t = r.t, m = r.m;
+        var fareTxt = t.range ? t.range[0] + '–' + t.range[1] : t.fare;
+        var val = sortBy === 'fare'
+          ? fareTxt + ' ฿<small>' + Math.round(t.minutes) + ' min</small>'
+          : Math.round(t.minutes) + ' min<small>' + fareTxt + ' ฿</small>';
+        if (t.outOfRange) val = '<span class="muted" style="font-weight:500">longest ride ≈ ' + Math.round(t.maxKm) + ' km</span>';
+        var pct = t.outOfRange ? 0 : Math.max(2, key(r) / maxV * 100);
+        html += '<button class="rank-row' + (openId === m.id ? ' active' : '') + '" data-id="' + m.id + '">' +
+          '<div class="rank-name"><span class="dot" style="background:' + m.color + ';' + (chartSet[m.id] ? '' : 'opacity:.35') + '"></span><span>' + esc(m.name) + '</span></div>' +
+          '<div class="rank-val num">' + val + '</div>' +
+          '<div class="rank-bar"><i style="width:' + pct + '%;background:' + m.color + '"></i></div></button>';
+        if (openId === m.id) html += detail(m, t);
+      });
+    });
+    var box = document.getElementById('rank');
+    box.innerHTML = html;
+    box.querySelectorAll('.rank-row').forEach(function (b) {
+      b.addEventListener('click', function (e) {
+        var id = b.dataset.id;
+        if (e.target.classList.contains('dot')) {          // dot toggles the chart line
+          if (chartSet[id]) delete chartSet[id]; else chartSet[id] = 1;
+        } else {
+          openId = openId === id ? null : id;
+          if (openId) chartSet[id] = 1;
+        }
+        render();
+      });
+    });
+    renderChart();
+  }
+
+  function detail(m, t) {
+    var f = m.fare, table = '';
+    if (f.kind === 'stations' || f.kind === 'km') {
+      var unit = f.kind === 'stations' ? 'stations' : 'km';
+      var prev = 0;
+      table = '<table class="fare-table"><tr><th>' + (unit === 'km' ? 'Distance' : 'Stations travelled') + '</th><th>Fare</th></tr>' +
+        f.table.map(function (r) {
+          var lbl = r.upTo >= 999 ? (prev + 1) + '+' : (prev + 1 === r.upTo ? r.upTo : (prev + (unit === 'km' ? 0 : 1)) + '–' + r.upTo);
+          if (unit === 'km') lbl = r.upTo >= 999 ? 'over ' + prev + ' km' : 'up to ' + r.upTo + ' km';
+          prev = r.upTo;
+          return '<tr><td>' + lbl + '</td><td class="num">' + r.fare + ' ฿</td></tr>';
+        }).join('') + '</table>';
+    } else if (f.kind === 'meter') {
+      table = '<table class="fare-table"><tr><th>Meter</th><th>Rate</th></tr><tr><td>First ' + f.baseKm + ' km</td><td>' + f.base + ' ฿</td></tr>' +
+        f.tiers.map(function (r, i) {
+          var from = i ? f.tiers[i - 1].upTo : f.baseKm;
+          return '<tr><td>' + from + (r.upTo > 999 ? '+ km' : '–' + r.upTo + ' km') + '</td><td>' + r.rate.toFixed(2) + ' ฿/km</td></tr>';
+        }).join('') + (f.perMinIdle ? '<tr><td>Standstill traffic</td><td>' + f.perMinIdle + ' ฿/min</td></tr>' : '') + '</table>';
+    } else if (f.kind === 'linear') {
+      table = '<table class="fare-table"><tr><td>' + f.base + ' ฿ + ' + f.perKm.toFixed(2) + ' ฿/km</td><td>max ' + f.max + ' ฿</td></tr></table>';
+    } else if (f.kind === 'distance') {
+      table = '<table class="fare-table"><tr><td>First ' + f.baseKm + ' km</td><td>' + f.base + ' ฿</td></tr>' +
+        (f.tiers ? f.tiers.map(function (r, i) {
+          var from = i ? f.tiers[i - 1].upTo : f.baseKm;
+          return '<tr><td>' + from + (r.upTo > 999 ? '+ km' : '–' + r.upTo + ' km') + '</td><td>' + r.rate + ' ฿/km</td></tr>';
+        }).join('') : '<tr><td>Each extra km</td><td>' + f.perKm + ' ฿</td></tr>') +
+        (f.perMin ? '<tr><td>Per minute</td><td>' + f.perMin + ' ฿</td></tr>' : '') + '</table>';
+    } else if (f.kind === 'flat') {
+      table = '<table class="fare-table"><tr><td>Any distance</td><td>' + f.fare + ' ฿</td></tr></table>';
+    }
+    var src = (m.sources || []).map(function (s) {
+      return '<li><a href="' + esc(s.url) + '" target="_blank" rel="noopener">' + esc(s.label) + '</a> <span class="muted">(' + esc(s.date) + ')</span></li>';
+    }).join('');
+    return '<div class="mode-detail"><h3>' + esc(m.name) + ' <span class="muted" style="font-weight:500">' + esc(m.nameTh) + '</span></h3>' +
+      '<p class="leg-sub" style="margin-top:4px">' + esc(m.description) + '</p>' +
+      (m.accuracy ? '<p class="note" style="margin-top:6px;color:var(--warn)">' + esc(m.accuracy) + '</p>' : '') +
+      table +
+      '<p class="note" style="margin-top:8px">Hours: ' + esc(m.hours) + ' · average ' + m.speedKmh + ' km/h · typical wait ' + m.waitMin + ' min</p>' +
+      (src ? '<ul class="note" style="margin-top:6px;padding-left:16px">' + src + '</ul>' : '') + '</div>';
+  }
+
+  function renderChart() {
+    var xs = [];
+    for (var d = 1; d <= 40; d++) xs.push(d);
+    var sets = modes.filter(function (m) { return chartSet[m.id]; }).map(function (m) {
+      return {
+        label: m.name,
+        data: xs.map(function (d) {
+          var t = trip(m, d);
+          if (t.outOfRange) return null;
+          return chartMetric === 'fare' ? t.fare : Math.round(t.minutes);
+        }),
+        borderColor: m.color, backgroundColor: m.color,
+        borderWidth: openId === m.id ? 3.5 : 2, pointRadius: 0, pointHoverRadius: 4,
+        stepped: chartMetric === 'fare' && m.fare.kind !== 'meter' && m.fare.kind !== 'distance' && m.fare.kind !== 'linear' ? 'before' : false,
+        spanGaps: false,
+      };
+    });
+    var cfg = {
+      type: 'line',
+      data: { labels: xs, datasets: sets },
+      options: {
+        responsive: true, maintainAspectRatio: false, animation: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: { position: 'bottom', labels: { boxWidth: 10, boxHeight: 10, font: { size: 11 } } },
+          tooltip: { callbacks: { title: function (c) { return c[0].label + ' km'; },
+            label: function (c) { return c.dataset.label + ': ' + c.parsed.y + (chartMetric === 'fare' ? ' ฿' : ' min'); } } },
+        },
+        scales: {
+          x: { title: { display: true, text: 'km' }, ticks: { maxTicksLimit: 9 }, grid: { display: false } },
+          y: chartMetric === 'fare'
+            ? { type: 'logarithmic', min: 5, title: { display: true, text: 'THB (log scale)' },
+                afterBuildTicks: function (ax) { ax.ticks = [5, 10, 20, 50, 100, 200, 500].filter(function (v) { return v <= ax.max * 1.05; }).map(function (v) { return { value: v }; }); },
+                ticks: { callback: function (v) { return v; } } }
+            : { beginAtZero: true, title: { display: true, text: 'minutes' } },
+        },
+      },
     };
-
-    // Group features by route
-    const routeFeatures = {};
-    const piers = [];
-
-    for (const feature of boatGeoJSON.features) {
-      if (feature.properties.type === 'pier') {
-        piers.push(feature);
-      } else if (feature.properties.routeId) {
-        const rid = feature.properties.routeId;
-        if (!routeFeatures[rid]) routeFeatures[rid] = [];
-        routeFeatures[rid].push(feature);
-      }
-    }
-
-    // Create layers for each boat route
-    for (const [routeId, config] of Object.entries(boatRouteConfigs)) {
-      const layerGroup = L.layerGroup();
-
-      // Add route line(s)
-      const features = routeFeatures[routeId] || [];
-      for (const feature of features) {
-        if (feature.geometry.type === 'LineString') {
-          const coords = feature.geometry.coordinates.map(c => [c[1], c[0]]);
-          L.polyline(coords, {
-            color: config.color,
-            weight: 3,
-            opacity: 0.7,
-            dashArray: '8, 6'
-          }).addTo(layerGroup);
-        }
-      }
-
-      // Add pier markers near this route's area
-      for (const pier of piers) {
-        const [lng, lat] = pier.geometry.coordinates;
-        // Assign piers to routes based on location
-        const isChaoPhrayaPier = lng < 100.52; // West of center = river
-        const isThisRoute = (routeId === 'chao_phraya' && isChaoPhrayaPier) ||
-                            (routeId === 'khlong' && !isChaoPhrayaPier);
-
-        if (isThisRoute) {
-          const marker = L.circleMarker([lat, lng], {
-            radius: 4,
-            fillColor: config.color,
-            color: '#fff',
-            weight: 1.5,
-            fillOpacity: 1
-          });
-
-          marker.bindPopup(`
-            <div class="station-popup">
-              <h3>${pier.properties.name || 'Pier'}</h3>
-              <div>${pier.properties.nameTh || ''}</div>
-              <span class="line-badge" style="background:${config.color}">${config.name}</span>
-            </div>
-          `);
-
-          marker.addTo(layerGroup);
-        }
-      }
-
-      layerGroup.addTo(map);
-      boatLayers[routeId] = { layer: layerGroup, visible: true, info: config };
-    }
+    if (chart) { chart.data = cfg.data; chart.options = cfg.options; chart.update(); }
+    else chart = new Chart(document.getElementById('chart'), cfg);
   }
 
-  async function loadBusRoutes() {
-    try {
-      const res = await fetch('longdo data/longdomap-bus-gtfs/routes.geojson');
-      const geojson = await res.json();
+  function renderNotes() {
+    document.getElementById('notes').innerHTML =
+      '<li>Fares checked ' + esc(data.updated) + '.</li>' +
+      data.notes.map(function (n) { return '<li>' + esc(n) + '</li>'; }).join('') +
+      '<li>Rail trips are converted from km to stations using each line’s average station spacing. Road distances are along the road.</li>';
+  }
 
-      busRouteLayer = L.geoJSON(geojson, {
-        style: {
-          color: '#FF9800',
-          weight: 1.5,
-          opacity: 0.4
-        },
-        onEachFeature: function (feature, layer) {
-          if (feature.properties && feature.properties.route_name) {
-            layer.bindPopup('<b>Bus Route: ' + feature.properties.route_name + '</b>');
-          }
-        }
+  // ---------------------------------------------------------------
+  function initMap(railGeo, boatGeo) {
+    map = BKK.createMap('map');
+    var r = BKK.drawRail(map, rail, railGeo);
+    rail.lines.forEach(function (l) {
+      if (r.byLine[l.id]) layers[l.id] = { name: l.name, color: l.color, layer: r.byLine[l.id], on: true, group: r.group };
+    });
+    var boats = L.layerGroup();
+    boatGeo.features.forEach(function (f) {
+      var g = f.geometry;
+      if (g.type === 'Point') {
+        L.circleMarker([g.coordinates[1], g.coordinates[0]], { radius: 3, color: '#fff', weight: 1, fillColor: '#0E7C86', fillOpacity: 1 })
+          .bindPopup('<div class="pop-title">' + esc(f.properties.name || 'Pier') + '</div>').addTo(boats);
+      } else {
+        var parts = g.type === 'LineString' ? [g.coordinates] : g.coordinates;
+        parts.forEach(function (p) {
+          L.polyline(p.map(function (c) { return [c[1], c[0]]; }), { color: '#0E7C86', weight: 2.5, opacity: 0.7, dashArray: '6 5' })
+            .bindPopup(esc(f.properties.name || 'Boat route')).addTo(boats);
+        });
+      }
+    });
+    boats.addTo(map);
+    layers.boats = { name: 'Boats', color: '#0E7C86', layer: boats, on: true };
+    layers.bus = { name: 'Bus routes', color: '#E67E22', layer: null, on: false };
+    renderLayerChips();
+  }
+
+  function renderLayerChips() {
+    var box = document.getElementById('layerChips');
+    box.innerHTML = Object.keys(layers).map(function (k) {
+      var l = layers[k];
+      return '<button class="chip' + (l.on ? ' active' : '') + '" data-l="' + k + '"><span class="dot" style="background:' + l.color + '"></span>' + esc(l.name) + '</button>';
+    }).join('');
+    box.querySelectorAll('.chip').forEach(function (b) {
+      b.addEventListener('click', function () { toggleLayer(b.dataset.l); });
+    });
+  }
+
+  function toggleLayer(k) {
+    var l = layers[k];
+    l.on = !l.on;
+    if (k === 'bus' && !l.layer) {
+      BKK.getJSON('longdo data/longdomap-bus-gtfs/routes.geojson').then(function (gj) {
+        l.layer = L.geoJSON(gj, { style: { color: '#E67E22', weight: 1.2, opacity: 0.35 },
+          onEachFeature: function (f, lay) { lay.bindPopup('Bus ' + esc(f.properties.route_name || '')); } });
+        if (l.on) l.layer.addTo(map);
       });
-      // Don't add to map by default
-    } catch (err) {
-      console.warn('Could not load bus routes GeoJSON:', err);
+    } else if (l.layer) {
+      var parent = l.group || map;
+      if (l.on) parent.addLayer(l.layer); else parent.removeLayer(l.layer);
     }
+    renderLayerChips();
   }
 
-  // ============================================================
-  // Charts
-  // ============================================================
-
-  function initCharts() {
-    const distances = [];
-    for (let d = 1; d <= 30; d++) distances.push(d);
-
-    const costCtx = document.getElementById('costChart').getContext('2d');
-    costChart = new Chart(costCtx, {
-      type: 'line',
-      data: {
-        labels: distances,
-        datasets: transportModes.map(mode => ({
-          label: mode.name,
-          data: distances.map(d => calculateFare(mode, d)),
-          borderColor: mode.color,
-          backgroundColor: mode.color + '20',
-          borderWidth: 2,
-          pointRadius: 0,
-          pointHoverRadius: 4,
-          tension: 0.3
-        }))
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: true,
-        aspectRatio: 1.5,
-        interaction: { mode: 'index', intersect: false },
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            callbacks: {
-              label: ctx => ctx.dataset.label + ': ' + ctx.parsed.y + ' THB'
-            }
-          }
-        },
-        scales: {
-          x: { title: { display: true, text: 'Distance (km)' } },
-          y: { title: { display: true, text: 'Fare (THB)' }, beginAtZero: true }
-        }
-      }
+  // ---------------------------------------------------------------
+  document.getElementById('kmSlider').addEventListener('input', function (e) { km = +e.target.value; render(); });
+  document.querySelectorAll('#sortBy button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      document.querySelectorAll('#sortBy button').forEach(function (x) { x.classList.toggle('active', x === b); });
+      sortBy = b.dataset.s; render();
     });
-
-    const timeCtx = document.getElementById('timeChart').getContext('2d');
-    timeChart = new Chart(timeCtx, {
-      type: 'line',
-      data: {
-        labels: distances,
-        datasets: transportModes.map(mode => ({
-          label: mode.name,
-          data: distances.map(d => Math.round(calculateTime(mode, d))),
-          borderColor: mode.color,
-          backgroundColor: mode.color + '20',
-          borderWidth: 2,
-          pointRadius: 0,
-          pointHoverRadius: 4,
-          tension: 0.3
-        }))
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: true,
-        aspectRatio: 1.5,
-        interaction: { mode: 'index', intersect: false },
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            callbacks: {
-              label: ctx => ctx.dataset.label + ': ' + ctx.parsed.y + ' min'
-            }
-          }
-        },
-        scales: {
-          x: { title: { display: true, text: 'Distance (km)' } },
-          y: { title: { display: true, text: 'Time (minutes)' }, beginAtZero: true }
-        }
-      }
+  });
+  document.querySelectorAll('#chartMetric button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      document.querySelectorAll('#chartMetric button').forEach(function (x) { x.classList.toggle('active', x === b); });
+      chartMetric = b.dataset.c; renderChart();
     });
-  }
-
-  function updateCharts() {
-    if (!costChart || !timeChart) return;
-
-    costChart.data.datasets.forEach((ds, i) => {
-      const mode = transportModes[i];
-      ds.pointRadius = costChart.data.labels.map(d => d === selectedDistance ? 6 : 0);
-      ds.pointBackgroundColor = mode.color;
-    });
-
-    timeChart.data.datasets.forEach((ds, i) => {
-      const mode = transportModes[i];
-      ds.pointRadius = timeChart.data.labels.map(d => d === selectedDistance ? 6 : 0);
-      ds.pointBackgroundColor = mode.color;
-    });
-
-    costChart.update();
-    timeChart.update();
-
-    renderModeCards();
-  }
-
-  // ============================================================
-  // Mode Cards
-  // ============================================================
-
-  function renderModeCards() {
-    const container = document.getElementById('modeCards');
-    container.innerHTML = '';
-
-    const filteredModes = activeModeFilter === 'all'
-      ? transportModes
-      : transportModes.filter(m => m.type === activeModeFilter);
-
-    const sorted = [...filteredModes].sort((a, b) =>
-      calculateFare(a, selectedDistance) - calculateFare(b, selectedDistance)
-    );
-
-    for (const mode of sorted) {
-      const fare = calculateFare(mode, selectedDistance);
-      const time = Math.round(calculateTime(mode, selectedDistance));
-
-      const card = document.createElement('div');
-      card.className = 'mode-card';
-      card.style.setProperty('--mode-color', mode.color);
-      card.dataset.modeId = mode.id;
-
-      card.innerHTML = '<div class="mode-color-dot" style="background:' + mode.color + '"></div>' +
-        '<div class="mode-card-info">' +
-          '<div class="mode-card-name">' + mode.name + '</div>' +
-          '<div class="mode-card-detail">' + mode.description + '</div>' +
-          '<div class="mode-card-detail">' + mode.avgSpeedKmh + ' km/h avg | ~' + time + ' min for ' + selectedDistance + ' km</div>' +
-        '</div>' +
-        '<div class="mode-card-fare">' +
-          '<div class="fare-value">' + fare + ' THB</div>' +
-          '<div class="fare-label">for ' + selectedDistance + ' km</div>' +
-        '</div>';
-
-      card.addEventListener('click', function() { toggleModeHighlight(mode.id); });
-      container.appendChild(card);
-    }
-  }
-
-  function toggleModeHighlight(modeId) {
-    const cards = document.querySelectorAll('.mode-card');
-    cards.forEach(function(card) {
-      card.classList.toggle('active', card.dataset.modeId === modeId && !card.classList.contains('active'));
-    });
-
-    const modeIndex = transportModes.findIndex(function(m) { return m.id === modeId; });
-    var el = document.querySelector('.mode-card[data-mode-id="' + modeId + '"]');
-    var isActive = el && el.classList.contains('active');
-
-    costChart.data.datasets.forEach(function(ds, i) {
-      ds.borderWidth = isActive ? (i === modeIndex ? 4 : 1) : 2;
-      ds.borderColor = isActive && i !== modeIndex
-        ? transportModes[i].color + '30'
-        : transportModes[i].color;
-    });
-    timeChart.data.datasets.forEach(function(ds, i) {
-      ds.borderWidth = isActive ? (i === modeIndex ? 4 : 1) : 2;
-      ds.borderColor = isActive && i !== modeIndex
-        ? transportModes[i].color + '30'
-        : transportModes[i].color;
-    });
-
-    costChart.update();
-    timeChart.update();
-  }
-
-  // ============================================================
-  // Layer Toggles
-  // ============================================================
-
-  function renderLayerToggles() {
-    var trainContainer = document.getElementById('trainLayerToggles');
-    var boatContainer = document.getElementById('boatLayerToggles');
-    var otherContainer = document.getElementById('otherLayerToggles');
-
-    // Train lines
-    for (const [lineId, data] of Object.entries(trainLayers)) {
-      var btn = document.createElement('button');
-      btn.className = 'layer-toggle active';
-      btn.style.setProperty('--layer-color', data.info.color);
-      btn.innerHTML = '<span class="dot" style="background:' + data.info.color + '"></span>' + data.info.name;
-      btn.addEventListener('click', (function(d, b) {
-        return function() {
-          d.visible = !d.visible;
-          b.classList.toggle('active', d.visible);
-          if (d.visible) { d.layer.addTo(map); } else { map.removeLayer(d.layer); }
-        };
-      })(data, btn));
-      trainContainer.appendChild(btn);
-    }
-
-    // Boat routes
-    if (boatContainer) {
-      for (const [routeId, data] of Object.entries(boatLayers)) {
-        var btn2 = document.createElement('button');
-        btn2.className = 'layer-toggle active';
-        btn2.style.setProperty('--layer-color', data.info.color);
-        btn2.innerHTML = '<span class="dot" style="background:' + data.info.color + '"></span>' + data.info.name;
-        btn2.addEventListener('click', (function(d, b) {
-          return function() {
-            d.visible = !d.visible;
-            b.classList.toggle('active', d.visible);
-            if (d.visible) { d.layer.addTo(map); } else { map.removeLayer(d.layer); }
-          };
-        })(data, btn2));
-        boatContainer.appendChild(btn2);
-      }
-    }
-
-    // Bus routes toggle
-    if (otherContainer) {
-      var busBtn = document.createElement('button');
-      busBtn.className = 'layer-toggle';
-      busBtn.style.setProperty('--layer-color', '#FF9800');
-      busBtn.innerHTML = '<span class="dot" style="background:#FF9800"></span>Bus Routes';
-      var busVisible = false;
-      busBtn.addEventListener('click', function() {
-        busVisible = !busVisible;
-        busBtn.classList.toggle('active', busVisible);
-        if (busVisible && busRouteLayer) {
-          busRouteLayer.addTo(map);
-        } else if (busRouteLayer) {
-          map.removeLayer(busRouteLayer);
-        }
-      });
-      otherContainer.appendChild(busBtn);
-    }
-  }
-
-  // ============================================================
-  // Event Listeners
-  // ============================================================
-
-  function setupEventListeners() {
-    var slider = document.getElementById('distanceSlider');
-    var valueDisplay = document.getElementById('distanceValue');
-    if (slider) {
-      slider.addEventListener('input', function() {
-        selectedDistance = parseInt(slider.value);
-        valueDisplay.textContent = selectedDistance + ' km';
-        updateCharts();
-      });
-    }
-
-    document.querySelectorAll('.tab-btn').forEach(function(btn) {
-      btn.addEventListener('click', function() {
-        document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
-        document.querySelectorAll('.tab-content').forEach(function(c) { c.classList.remove('active'); });
-        btn.classList.add('active');
-        document.getElementById(btn.dataset.tab).classList.add('active');
-      });
-    });
-
-    document.querySelectorAll('.type-filter').forEach(function(btn) {
-      btn.addEventListener('click', function() {
-        document.querySelectorAll('.type-filter').forEach(function(b) { b.classList.remove('active'); });
-        btn.classList.add('active');
-        activeModeFilter = btn.dataset.type;
-        renderModeCards();
-      });
-    });
-  }
-
-  // ============================================================
-  // Initialize
-  // ============================================================
-
-  setupEventListeners();
-  loadData();
-
+  });
+  load();
 })();

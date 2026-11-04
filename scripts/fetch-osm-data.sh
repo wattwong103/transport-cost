@@ -19,4 +19,4 @@ curl -s --max-time 120 -X POST 'https://overpass-api.de/api/interpreter' \
   -o /tmp/osm-boat-raw.json
 echo "Boat data: $(wc -c < /tmp/osm-boat-raw.json) bytes"
 
-echo "Done. Process with Python scripts to generate data/osm-rail-routes.geojson and data/osm-boat-routes.geojson"
+echo "Done. Convert to data/osm-rail-routes.raw.geojson and data/osm-boat-routes.geojson, then run scripts/build-rail-geometry.py"
