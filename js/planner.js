@@ -148,9 +148,9 @@
     picking = k;
     document.getElementById('originInput').classList.toggle('picking', k === 'o');
     document.getElementById('destInput').classList.toggle('picking', k === 'd');
-    document.getElementById('mapHint').textContent = points.o && points.d
+    document.getElementById('mapHint').textContent = BKK.tapWord(points.o && points.d
       ? 'Drag a pin, or click the map to move the ' + (k === 'o' ? 'start' : 'destination')
-      : k === 'o' ? 'Click the map to set your starting point' : 'Click the map to set your destination';
+      : k === 'o' ? 'Click the map to set your starting point' : 'Click the map to set your destination');
   }
 
   function setPoint(k, lat, lng, name, silent) {

@@ -6,6 +6,17 @@ var BKK = (function () {
 
   var CENTER = [13.7500, 100.5300];
 
+  // Touch screens get "Tap" instead of "Click" in hints and placeholders
+  var TOUCH = window.matchMedia && window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+  function tapWord(text) {
+    return TOUCH ? text.replace(/\bClick\b/g, 'Tap').replace(/\bclick\b/g, 'tap') : text;
+  }
+  if (TOUCH) {
+    document.documentElement.classList.add('touch');
+    document.querySelectorAll('.map-hint').forEach(function (el) { el.textContent = tapWord(el.textContent); });
+    document.querySelectorAll('input[placeholder]').forEach(function (el) { el.placeholder = tapWord(el.placeholder); });
+  }
+
   function esc(s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
       return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
@@ -99,7 +110,7 @@ var BKK = (function () {
   }
 
   return {
-    CENTER: CENTER, esc: esc, fmtMin: fmtMin, fmtKm: fmtKm,
+    CENTER: CENTER, TOUCH: TOUCH, tapWord: tapWord, esc: esc, fmtMin: fmtMin, fmtKm: fmtKm,
     createMap: createMap, getJSON: getJSON, drawRail: drawRail, shortLabel: shortLabel,
   };
 })();
