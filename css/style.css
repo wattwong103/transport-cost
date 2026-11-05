@@ -275,6 +275,17 @@ button { cursor: pointer; }
 .fare-table td:last-child, .fare-table th:last-child { text-align: right; }
 .fare-table th { color: var(--ink-3); font-weight: 500; }
 
+/* ---------------- Touch ---------------- */
+/* no cursor on touch screens, so no "under cursor" readout */
+.touch #hover { display: none; }
+@media (pointer: coarse) {
+  .field .clear { width: 40px; height: 40px; right: 2px; font-size: 20px; }
+  .input { padding-right: 44px; min-height: 44px; }
+  .link-btn { padding: 10px 0; min-height: 40px; }
+  .chip { padding: 8px 12px; min-height: 36px; }
+  .seg button { min-height: 40px; }
+}
+
 /* ---------------- Responsive ---------------- */
 @media (max-width: 860px) {
   :root { --header-h: 96px; }
@@ -285,6 +296,9 @@ button { cursor: pointer; }
   .app { flex-direction: column; height: auto; min-height: calc(100dvh - var(--header-h)); }
   .map-wrap { order: -1; height: 52vh; height: 52dvh; flex: none; }
   .panel { width: 100%; border-right: 0; overflow: visible; }
-  .map-legend { right: 8px; bottom: 8px; min-width: 170px; padding: 8px 10px; }
+  .map-legend { right: 8px; bottom: 22px; min-width: 0; width: 190px; padding: 6px 8px; }
+  .legend-title { font-size: 11px; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .legend-scale { height: 8px; }
+  .legend-labels { font-size: 10px; }
   .map-hint { top: 8px; font-size: 12px; }
 }
